@@ -10,20 +10,36 @@ import {
 
 type UsedItemsGridProps = {
   products: PublicProduct[];
+  /**
+   * Full used catalog. Fresh shelf/badges must be derived from this list,
+   * otherwise search/filters recalculate the "wave" on a tiny subset and
+   * falsely mark old items as НОВИНКА.
+   */
+  allUsedProducts?: PublicProduct[];
   error?: string | null;
 };
 
-export function UsedItemsGrid({ products, error }: UsedItemsGridProps) {
+export function UsedItemsGrid({
+  products,
+  allUsedProducts,
+  error,
+}: UsedItemsGridProps) {
+  const freshSource = allUsedProducts ?? products;
+
   const freshProducts = useMemo(
-    () => selectFreshArrivals(products),
-    [products],
+    () => selectFreshArrivals(freshSource),
+    [freshSource],
   );
   const freshIds = useMemo(
-    () => buildFreshArrivalIdSet(products),
-    [products],
+    () => buildFreshArrivalIdSet(freshSource),
+    [freshSource],
   );
 
-  const showFreshShelf = !error && freshProducts.length > 0;
+  // Only show the shelf on the unfiltered catalog; badges still use global ids.
+  const showFreshShelf =
+    !error &&
+    freshProducts.length > 0 &&
+    products.length === freshSource.length;
 
   return (
     <div className="min-w-0">

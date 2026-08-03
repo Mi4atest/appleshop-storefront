@@ -42,6 +42,10 @@ export function Header({ searchProducts = [] }: HeaderProps) {
   const products = useMemo(() => searchProducts, [searchProducts]);
 
   useEffect(() => {
+    setSearchQuery(urlQuery);
+  }, [urlQuery]);
+
+  useEffect(() => {
     if (!menuOpen) return;
 
     const previous = document.body.style.overflow;
@@ -58,20 +62,33 @@ export function Header({ searchProducts = [] }: HeaderProps) {
     };
   }, [menuOpen]);
 
-  const updateSearchQuery = (query: string) => {
-    setSearchQuery(query);
-    if (pathname !== "/") return;
-    const params = new URLSearchParams(searchParams.toString());
-    const trimmed = query.trim();
-    if (trimmed) params.set("q", trimmed);
-    else params.delete("q");
-    const next = params.toString();
-    router.replace(next ? `/?${next}` : "/", { scroll: false });
-  };
-
   const openSearch = () => {
     setSearchQuery(urlQuery);
     setSearchOpen(true);
+  };
+
+  const submitSearch = (query: string) => {
+    const trimmed = query.trim();
+    setSearchQuery(trimmed);
+    setSearchOpen(false);
+
+    const params =
+      pathname === "/"
+        ? new URLSearchParams(searchParams.toString())
+        : new URLSearchParams();
+    if (trimmed) params.set("q", trimmed);
+    else params.delete("q");
+
+    const queryString = params.toString();
+    const href = queryString ? `/?${queryString}#catalog` : "/#catalog";
+    router.push(href);
+
+    window.setTimeout(() => {
+      document.getElementById("catalog")?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }, 80);
   };
 
   return (
@@ -200,7 +217,7 @@ export function Header({ searchProducts = [] }: HeaderProps) {
         onClose={() => setSearchOpen(false)}
         products={products}
         query={searchQuery}
-        onQueryChange={updateSearchQuery}
+        onSubmit={submitSearch}
       />
     </>
   );

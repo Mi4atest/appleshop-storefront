@@ -22,6 +22,7 @@ import {
   hasActiveFacets,
   type ProductFilterState,
 } from "@/lib/product-attrs";
+import { sortNewProducts, sortUsedProducts } from "@/lib/product-sort";
 import { filterProductsByQuery } from "@/lib/search";
 
 export type { CatalogCategory };
@@ -103,14 +104,14 @@ export function Catalog({
     let items = usedProducts;
     items = filterProductsByFacets(items, filters);
     items = filterProductsByQuery(items, query);
-    return items;
+    return sortUsedProducts(items);
   }, [usedProducts, filters, query]);
 
   const filteredNew = useMemo(() => {
     let items = newProducts;
     items = filterProductsByFacets(items, filters);
     items = filterProductsByQuery(items, query);
-    return items;
+    return sortNewProducts(items);
   }, [newProducts, filters, query]);
 
   const commit = (next: UiState) => {
@@ -185,7 +186,11 @@ export function Catalog({
         ) : null}
 
         {showUsed ? (
-          <UsedItemsGrid products={filteredUsed} error={usedError} />
+          <UsedItemsGrid
+            products={filteredUsed}
+            allUsedProducts={usedProducts}
+            error={usedError}
+          />
         ) : null}
         {showNew ? (
           <NewItemsGrid products={filteredNew} error={newError} />
