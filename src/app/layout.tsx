@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Space_Grotesk } from "next/font/google";
+import { CartDrawer } from "@/components/cart-drawer";
+import { CartProvider } from "@/components/cart-provider";
+import { CartToast } from "@/components/cart-toast";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -36,7 +39,11 @@ export default function RootLayout({
       className={`${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="flex min-h-full min-w-0 flex-col overflow-x-hidden font-sans">
-        {children}
+        <CartProvider>
+          {children}
+          <CartDrawer />
+          <CartToast />
+        </CartProvider>
       </body>
     </html>
   );

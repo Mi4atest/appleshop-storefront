@@ -27,7 +27,7 @@ export function BrandMark({
         priority
       />
       {showWordmark ? (
-        <span className="hidden truncate text-sm font-bold uppercase tracking-[0.18em] lg:inline">
+        <span className="hidden truncate text-sm font-bold uppercase tracking-[0.18em] md:inline">
           AppleShop
         </span>
       ) : null}

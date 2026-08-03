@@ -175,7 +175,7 @@ export function Catalog({
         onFilterChange={updateFilter}
         onResetFilters={resetFilters}
       />
-      <div id="catalog" ref={catalogRef} className="scroll-mt-28 pt-6 md:pt-8">
+      <div id="catalog" ref={catalogRef} className="scroll-mt-20 pt-5 md:pt-6">
         {hasQuery || facetActive ? (
           <p className="mb-6 px-4 text-center text-[11px] uppercase tracking-[0.16em] text-neutral-500 md:px-8">
             {hasQuery ? `Поиск: «${query.trim()}» · ` : null}

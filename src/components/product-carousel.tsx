@@ -62,7 +62,7 @@ export function ProductCarousel({ slides, alt }: ProductCarouselProps) {
 
   if (total === 0) {
     return (
-      <div className="flex aspect-[4/5] w-full max-w-full items-center justify-center bg-neutral-100 text-xs uppercase tracking-[0.18em] text-neutral-400">
+      <div className="flex aspect-square w-full max-w-full items-center justify-center bg-neutral-100 text-xs uppercase tracking-[0.18em] text-neutral-400">
         Нет фото
       </div>
     );
@@ -73,7 +73,7 @@ export function ProductCarousel({ slides, alt }: ProductCarouselProps) {
   return (
     <div className="w-full min-w-0 max-w-full">
       <div
-        className="relative aspect-[4/5] w-full max-w-full overflow-hidden bg-neutral-50"
+        className="relative aspect-square w-full max-w-full overflow-hidden bg-neutral-50"
         onTouchStart={(event) => {
           touchStartX.current = event.changedTouches[0]?.clientX ?? null;
         }}
@@ -146,7 +146,7 @@ export function ProductCarousel({ slides, alt }: ProductCarouselProps) {
                   alt=""
                   fill
                   sizes="64px"
-                  className="object-cover"
+                  className="object-contain p-1"
                 />
               ) : (
                 <span className="flex h-full w-full items-center justify-center bg-neutral-900 text-[10px] font-bold uppercase tracking-wider text-white">

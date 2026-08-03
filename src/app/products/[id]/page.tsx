@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
+import { AddToCartButton } from "@/components/add-to-cart-button";
 import { Footer } from "@/components/footer";
 import { Header } from "@/components/header";
 import { HeaderShell } from "@/components/header-shell";
@@ -54,11 +55,14 @@ export default async function ProductPage({ params }: PageProps) {
   const product = result.data;
   const title = getProductTitle(product);
   const links = getProductLinks(product);
-  const shopLinks = getShopChannelLinks(links);
+  const shopLinks =
+    product.kind === "new" ? [] : getShopChannelLinks(links);
   const { images, videos, usingRender } = getDisplayMedia(product);
   const description =
     product.description?.trim() ||
-    (await fetchTelegramDescription(product.telegram_link));
+    (product.kind === "used"
+      ? await fetchTelegramDescription(product.telegram_link)
+      : null);
   const badge = getProductBadge(product);
 
   const slides = [
@@ -101,7 +105,9 @@ export default async function ProductPage({ params }: PageProps) {
                   ? ` · ${product.collection_name}`
                   : ""}
                 {availability ? ` · ${availability}` : ""}
-                {badge ? ` · ${badge}` : ""}
+                {badge && badge.label !== availability?.toUpperCase()
+                  ? ` · ${badge.label}`
+                  : ""}
               </p>
 
               <h1 className="mt-3 break-words text-xl font-bold uppercase leading-snug tracking-[0.04em] sm:text-2xl md:text-3xl md:leading-tight md:tracking-[0.08em]">
@@ -113,6 +119,16 @@ export default async function ProductPage({ params }: PageProps) {
                   {product.price}
                 </p>
               ) : null}
+
+              <div className="mt-6">
+                <AddToCartButton
+                  productId={product.id}
+                  title={title}
+                  price={product.price}
+                  image={images[0] ?? null}
+                  kind={product.kind}
+                />
+              </div>
 
               {usingRender ? (
                 <p className="mt-3 text-xs leading-relaxed text-neutral-500">

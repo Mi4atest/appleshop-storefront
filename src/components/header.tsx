@@ -11,6 +11,7 @@ import {
   ProfileIcon,
   SearchIcon,
 } from "@/components/icons";
+import { useCart } from "@/components/cart-provider";
 import { SearchPanel } from "@/components/search-panel";
 import type { PublicProduct } from "@/lib/api";
 
@@ -18,12 +19,6 @@ const NAV_LINKS = [
   { href: "/#catalog", label: "Каталог" },
   { href: "/#about", label: "О нас" },
   { href: "/#contact", label: "Контакты" },
-];
-
-const CATEGORY_LINKS = [
-  { href: "/?category=all#catalog", label: "Все товары" },
-  { href: "/?category=used#catalog", label: "Б/у" },
-  { href: "/?category=new#catalog", label: "Новинки" },
 ];
 
 const iconButtonClass =
@@ -42,6 +37,7 @@ export function Header({ searchProducts = [] }: HeaderProps) {
   const searchParams = useSearchParams();
   const urlQuery = searchParams.get("q") ?? "";
   const [searchQuery, setSearchQuery] = useState(urlQuery);
+  const { count, openCart, badgePulse } = useCart();
 
   const products = useMemo(() => searchProducts, [searchProducts]);
 
@@ -81,8 +77,13 @@ export function Header({ searchProducts = [] }: HeaderProps) {
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white">
-        <div className="flex h-12 items-center gap-1 px-2 md:h-14 md:gap-2 md:px-6">
-          <div className="flex w-10 shrink-0 items-center justify-start md:w-12">
+        <div className="hidden border-b border-neutral-100 bg-neutral-50 md:block">
+          <p className="px-6 py-1.5 text-center text-[10px] uppercase tracking-[0.16em] text-neutral-500 lg:px-8">
+            Доставка и самовывоз в Кирове
+          </p>
+        </div>
+        <div className="flex h-12 items-center gap-2 px-2 md:h-14 md:gap-6 md:px-6 lg:px-8">
+          <div className="flex w-10 shrink-0 items-center justify-start md:hidden">
             <button
               type="button"
               className={iconButtonClass}
@@ -95,11 +96,26 @@ export function Header({ searchProducts = [] }: HeaderProps) {
             </button>
           </div>
 
-          <div className="flex min-w-0 flex-1 items-center justify-center px-1">
+          <div className="flex min-w-0 flex-1 items-center justify-center md:flex-none md:justify-start">
             <BrandMark showWordmark />
           </div>
 
-          <div className="flex w-[5.25rem] shrink-0 items-center justify-end md:w-[8.5rem]">
+          <nav
+            className="hidden min-w-0 flex-1 items-center justify-center gap-8 lg:gap-10 md:flex"
+            aria-label="Основная навигация"
+          >
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.label}
+                href={link.href}
+                className="text-xs font-bold uppercase tracking-[0.18em] transition-opacity hover:opacity-55"
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          <div className="flex w-[5.25rem] shrink-0 items-center justify-end md:w-auto md:gap-0.5">
             <button
               type="button"
               className={iconButtonClass}
@@ -117,50 +133,27 @@ export function Header({ searchProducts = [] }: HeaderProps) {
             </button>
             <button
               type="button"
-              className={iconButtonClass}
-              aria-label="Корзина"
+              className={`relative ${iconButtonClass}`}
+              aria-label={count > 0 ? `Корзина, товаров: ${count}` : "Корзина"}
+              onClick={openCart}
             >
               <BagIcon />
+              {count > 0 ? (
+                <span
+                  key={badgePulse}
+                  className="cart-badge-pulse absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center bg-black px-1 text-[9px] font-bold leading-none text-white"
+                >
+                  {count > 99 ? "99+" : count}
+                </span>
+              ) : null}
             </button>
           </div>
-        </div>
-
-        <nav
-          className="hidden items-center justify-center gap-10 border-t border-neutral-200 py-2.5 md:flex"
-          aria-label="Основная навигация"
-        >
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="text-xs font-bold uppercase tracking-[0.22em] transition-opacity hover:opacity-55"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </nav>
-
-        <div className="hidden border-t border-neutral-200 md:block">
-          <nav
-            className="flex items-center justify-center gap-10 py-2"
-            aria-label="Категории"
-          >
-            {CATEGORY_LINKS.map((link) => (
-              <Link
-                key={link.label}
-                href={link.href}
-                className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-700 transition-opacity hover:opacity-55"
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
         </div>
 
         {menuOpen ? (
           <div
             id={drawerId}
-            className="fixed inset-0 top-12 z-40 md:top-[7.25rem]"
+            className="fixed inset-0 top-12 z-40 md:hidden"
             role="dialog"
             aria-modal="true"
             aria-label="Меню"
@@ -176,7 +169,7 @@ export function Header({ searchProducts = [] }: HeaderProps) {
                 <BrandMark size="md" showWordmark />
               </div>
               <nav className="flex flex-col gap-6" aria-label="Мобильное меню">
-                {[...NAV_LINKS, ...CATEGORY_LINKS].map((link) => (
+                {NAV_LINKS.map((link) => (
                   <Link
                     key={link.label}
                     href={link.href}

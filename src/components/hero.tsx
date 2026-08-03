@@ -13,12 +13,6 @@ const FILTER_PILLS: { id: CatalogCategory; label: string }[] = [
   { id: "new", label: "Новые" },
 ];
 
-const CATEGORY_CIRCLES: { id: CatalogCategory; label: string }[] = [
-  { id: "all", label: "Все" },
-  { id: "used", label: "Б/у" },
-  { id: "new", label: "Новые" },
-];
-
 type HeroProps = {
   category: CatalogCategory;
   onCategoryChange: (category: CatalogCategory) => void;
@@ -59,15 +53,13 @@ export function Hero({
 
   return (
     <section className="border-b border-neutral-200">
-      <div className="hidden border-b border-neutral-200 px-6 py-3 md:block">
-        <p className="text-center text-[11px] font-bold uppercase tracking-[0.22em]">
-          Доставка и самовывоз в Кирове
-        </p>
-      </div>
-
-      <div className="px-4 pb-6 pt-6 md:px-8 md:pb-8 md:pt-6">
-        <div className="mx-auto flex max-w-5xl flex-col items-center">
-          <div className="flex w-full max-w-md gap-2 md:hidden">
+      <div className="px-4 py-4 md:px-6 md:py-3 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-8">
+          <div
+            className="flex w-full gap-2 md:w-auto md:shrink-0"
+            role="group"
+            aria-label="Категории"
+          >
             {FILTER_PILLS.map((pill) => {
               const active = category === pill.id;
               return (
@@ -75,7 +67,7 @@ export function Hero({
                   key={pill.id}
                   type="button"
                   onClick={() => onCategoryChange(pill.id)}
-                  className={`flex-1 touch-manipulation rounded-full border border-black px-3 py-2.5 text-xs font-bold uppercase tracking-[0.14em] transition-colors duration-150 ${
+                  className={`flex-1 touch-manipulation rounded-full border border-black px-3 py-2.5 text-xs font-bold uppercase tracking-[0.14em] transition-colors duration-150 md:flex-none md:px-4 md:py-2 ${
                     active ? "bg-black text-white" : "bg-white text-black"
                   }`}
                   aria-pressed={active}
@@ -86,99 +78,45 @@ export function Hero({
             })}
           </div>
 
-          <div className="mt-5 grid w-full max-w-lg grid-cols-2 gap-x-4 gap-y-3 md:mt-0 md:hidden">
+          <div className="grid w-full grid-cols-2 gap-x-4 gap-y-3 md:flex md:w-auto md:flex-wrap md:items-center md:justify-end md:gap-x-5 md:gap-y-2">
             <FilterDropdown
               label="Модель"
               value={filters.model ?? null}
               options={modelOptions}
               onChange={(value) => onFilterChange("model", value)}
-            />
-            <FilterDropdown
-              label="Цена"
-              value={filters.price ?? null}
-              options={priceOptions}
-              onChange={(value) => onFilterChange("price", value)}
+              align="left"
             />
             <FilterDropdown
               label="Память"
               value={filters.storage ?? null}
               options={storageOptions}
               onChange={(value) => onFilterChange("storage", value)}
+              align="left"
+            />
+            <FilterDropdown
+              label="Цена"
+              value={filters.price ?? null}
+              options={priceOptions}
+              onChange={(value) => onFilterChange("price", value)}
+              align="left"
             />
             <FilterDropdown
               label="Цвет"
               value={filters.color ?? null}
               options={colorOptions}
               onChange={(value) => onFilterChange("color", value)}
+              align="left"
             />
+            {hasFilters ? (
+              <button
+                type="button"
+                onClick={onResetFilters}
+                className="col-span-2 justify-self-center text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-500 underline-offset-2 hover:text-black hover:underline md:col-span-1 md:ml-1"
+              >
+                Сбросить
+              </button>
+            ) : null}
           </div>
-
-          <div className="hidden w-full md:block">
-            <div className="flex items-center justify-center gap-10 lg:gap-14">
-              {CATEGORY_CIRCLES.map((item) => {
-                const active = category === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => onCategoryChange(item.id)}
-                    className="flex touch-manipulation flex-col items-center gap-3"
-                    aria-pressed={active}
-                  >
-                    <span
-                      className={`flex h-24 w-24 items-center justify-center rounded-full border text-xs font-bold uppercase tracking-[0.14em] transition-colors duration-150 lg:h-28 lg:w-28 ${
-                        active
-                          ? "border-black bg-black text-white"
-                          : "border-neutral-300 bg-neutral-100 text-black"
-                      }`}
-                    >
-                      {item.label}
-                    </span>
-                    <span className="text-[10px] font-bold uppercase tracking-[0.18em]">
-                      {item.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="mx-auto mt-8 grid max-w-3xl grid-cols-4 gap-4 border-t border-neutral-200 pt-5">
-              <FilterDropdown
-                label="Модель"
-                value={filters.model ?? null}
-                options={modelOptions}
-                onChange={(value) => onFilterChange("model", value)}
-              />
-              <FilterDropdown
-                label="Память"
-                value={filters.storage ?? null}
-                options={storageOptions}
-                onChange={(value) => onFilterChange("storage", value)}
-              />
-              <FilterDropdown
-                label="Цена"
-                value={filters.price ?? null}
-                options={priceOptions}
-                onChange={(value) => onFilterChange("price", value)}
-              />
-              <FilterDropdown
-                label="Цвет"
-                value={filters.color ?? null}
-                options={colorOptions}
-                onChange={(value) => onFilterChange("color", value)}
-              />
-            </div>
-          </div>
-
-          {hasFilters ? (
-            <button
-              type="button"
-              onClick={onResetFilters}
-              className="mt-4 text-[10px] font-bold uppercase tracking-[0.18em] text-neutral-500 underline-offset-2 hover:text-black hover:underline"
-            >
-              Сбросить фильтры
-            </button>
-          ) : null}
         </div>
       </div>
     </section>

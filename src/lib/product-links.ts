@@ -63,6 +63,9 @@ const LINK_ORDER: {
   },
 ];
 
+/** New SKUs currently share channel-level TG / VK wall posts — hide those. */
+const NEW_PRODUCT_LINK_KEYS: ProductLinkKey[] = ["vk", "avito"];
+
 const SHOP_CHANNELS: ProductLink[] = [
   {
     key: "instagram",
@@ -101,8 +104,12 @@ function readFallbackField(
 export function getProductLinks(product: PublicProduct): ProductLink[] {
   const bag = product.links ?? null;
   const result: ProductLink[] = [];
+  const allowed =
+    product.kind === "new" ? new Set(NEW_PRODUCT_LINK_KEYS) : null;
 
   for (const config of LINK_ORDER) {
+    if (allowed && !allowed.has(config.key)) continue;
+
     let href: string | null = null;
 
     if (bag) {
