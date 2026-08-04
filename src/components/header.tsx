@@ -36,14 +36,9 @@ export function Header({ searchProducts = [] }: HeaderProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const urlQuery = searchParams.get("q") ?? "";
-  const [searchQuery, setSearchQuery] = useState(urlQuery);
   const { count, openCart, badgePulse } = useCart();
 
   const products = useMemo(() => searchProducts, [searchProducts]);
-
-  useEffect(() => {
-    setSearchQuery(urlQuery);
-  }, [urlQuery]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -63,13 +58,11 @@ export function Header({ searchProducts = [] }: HeaderProps) {
   }, [menuOpen]);
 
   const openSearch = () => {
-    setSearchQuery(urlQuery);
     setSearchOpen(true);
   };
 
   const submitSearch = (query: string) => {
     const trimmed = query.trim();
-    setSearchQuery(trimmed);
     setSearchOpen(false);
 
     const params =
@@ -212,13 +205,15 @@ export function Header({ searchProducts = [] }: HeaderProps) {
         ) : null}
       </header>
 
-      <SearchPanel
-        open={searchOpen}
-        onClose={() => setSearchOpen(false)}
-        products={products}
-        query={searchQuery}
-        onSubmit={submitSearch}
-      />
+      {searchOpen ? (
+        <SearchPanel
+          open
+          onClose={() => setSearchOpen(false)}
+          products={products}
+          query={urlQuery}
+          onSubmit={submitSearch}
+        />
+      ) : null}
     </>
   );
 }

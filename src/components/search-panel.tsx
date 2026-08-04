@@ -36,11 +36,6 @@ export function SearchPanel({
 
   useEffect(() => {
     if (!open) return;
-    setDraft(query);
-  }, [open, query]);
-
-  useEffect(() => {
-    if (!open) return;
 
     const timer = window.setTimeout(() => inputRef.current?.focus(), 30);
     const previous = document.body.style.overflow;

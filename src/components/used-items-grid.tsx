@@ -16,12 +16,16 @@ type UsedItemsGridProps = {
    * falsely mark old items as НОВИНКА.
    */
   allUsedProducts?: PublicProduct[];
+  view?: "grid" | "list";
+  showFreshArrivals?: boolean;
   error?: string | null;
 };
 
 export function UsedItemsGrid({
   products,
   allUsedProducts,
+  view = "grid",
+  showFreshArrivals = true,
   error,
 }: UsedItemsGridProps) {
   const freshSource = allUsedProducts ?? products;
@@ -38,6 +42,7 @@ export function UsedItemsGrid({
   // Only show the shelf on the unfiltered catalog; badges still use global ids.
   const showFreshShelf =
     !error &&
+    showFreshArrivals &&
     freshProducts.length > 0 &&
     products.length === freshSource.length;
 
@@ -58,12 +63,19 @@ export function UsedItemsGrid({
           <p className="mb-8 text-center text-[10px] uppercase tracking-[0.16em] text-neutral-500 md:mb-10">
             Недавно добавленные б/у устройства
           </p>
-          <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-3 md:gap-x-8 md:gap-y-12 xl:grid-cols-4 xl:gap-x-10">
+          <div
+            className={
+              view === "grid"
+                ? "mx-auto grid max-w-7xl grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-3 md:gap-x-8 md:gap-y-12 xl:grid-cols-4 xl:gap-x-10"
+                : "mx-auto max-w-5xl"
+            }
+          >
             {freshProducts.map((product) => (
               <ProductCard
                 key={`fresh-${product.id}`}
                 product={product}
                 isFreshArrival
+                view={view}
               />
             ))}
           </div>
@@ -84,12 +96,19 @@ export function UsedItemsGrid({
             Пока нет активных б/у товаров
           </p>
         ) : (
-          <div className="mx-auto grid max-w-7xl grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-3 md:gap-x-8 md:gap-y-12 xl:grid-cols-4 xl:gap-x-10">
+          <div
+            className={
+              view === "grid"
+                ? "mx-auto grid max-w-7xl grid-cols-2 gap-x-3 gap-y-8 md:grid-cols-3 md:gap-x-8 md:gap-y-12 xl:grid-cols-4 xl:gap-x-10"
+                : "mx-auto max-w-5xl"
+            }
+          >
             {products.map((product) => (
               <ProductCard
                 key={product.id}
                 product={product}
                 isFreshArrival={freshIds.has(product.id)}
+                view={view}
               />
             ))}
           </div>

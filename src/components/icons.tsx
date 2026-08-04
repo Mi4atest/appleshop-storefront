@@ -101,3 +101,54 @@ export function ChevronDownIcon({ className = "h-3 w-3" }: IconProps) {
     </svg>
   );
 }
+
+export function FilterIcon({ className = "h-4 w-4" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <path d="M4 6h16M7 12h10M10 18h4" />
+    </svg>
+  );
+}
+
+export function GridIcon({ className = "h-4 w-4" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      aria-hidden="true"
+    >
+      <rect x="4" y="4" width="6" height="6" />
+      <rect x="14" y="4" width="6" height="6" />
+      <rect x="4" y="14" width="6" height="6" />
+      <rect x="14" y="14" width="6" height="6" />
+    </svg>
+  );
+}
+
+export function ListIcon({ className = "h-4 w-4" }: IconProps) {
+  return (
+    <svg
+      className={className}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      aria-hidden="true"
+    >
+      <path d="M9 6h11M9 12h11M9 18h11" />
+      <path d="M4 6h.01M4 12h.01M4 18h.01" strokeWidth="2.5" />
+    </svg>
+  );
+}

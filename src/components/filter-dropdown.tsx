@@ -6,6 +6,7 @@ import { ChevronDownIcon } from "@/components/icons";
 export type FilterOption = {
   id: string;
   label: string;
+  count?: number;
 };
 
 type FilterDropdownProps = {
@@ -100,7 +101,7 @@ export function FilterDropdown({
                 type="button"
                 role="option"
                 aria-selected={active}
-                className={`block w-full touch-manipulation px-3 py-2.5 text-left text-xs tracking-[0.04em] active:bg-neutral-100 ${
+                className={`flex w-full touch-manipulation items-center justify-between px-3 py-2.5 text-left text-xs tracking-[0.04em] active:bg-neutral-100 ${
                   active ? "bg-neutral-100 font-bold" : ""
                 }`}
                 onClick={() => {
@@ -108,7 +109,10 @@ export function FilterDropdown({
                   setOpen(false);
                 }}
               >
-                {option.label}
+                <span>{option.label}</span>
+                {option.count != null ? (
+                  <span className="ml-3 text-neutral-400">{option.count}</span>
+                ) : null}
               </button>
             );
           })}

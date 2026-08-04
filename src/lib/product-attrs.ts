@@ -13,6 +13,14 @@ export type PriceRangeOption = {
   max: number;
 };
 
+export type AvailabilityFilter = "available" | "on_order";
+
+export type FacetOption = {
+  id: string;
+  label: string;
+  count: number;
+};
+
 const COLOR_RULES: { id: string; label: string; emoji: string; aliases: string[] }[] = [
   {
     id: "black",
@@ -181,74 +189,212 @@ export function extractColor(product: PublicProduct): ColorOption | null {
   return null;
 }
 
-export type CatalogFacets = {
-  models: string[];
-  storages: string[];
-  colors: ColorOption[];
-  priceRanges: PriceRangeOption[];
-};
-
-export function buildCatalogFacets(products: PublicProduct[]): CatalogFacets {
-  const models = new Set<string>();
-  const storages = new Set<string>();
-  const colors = new Map<string, ColorOption>();
-
-  for (const product of products) {
-    const model = extractModel(product);
-    if (model) models.add(model);
-    const storage = extractStorage(product);
-    if (storage) storages.add(storage);
-    const color = extractColor(product);
-    if (color) colors.set(color.id, color);
-  }
-
-  const storageRank = (value: string) => {
-    const amount = Number(value.replace(/\D/g, ""));
-    return value.includes("TB") ? amount * 1024 : amount;
-  };
-
-  return {
-    models: [...models].sort((a, b) => a.localeCompare(b, "ru")),
-    storages: [...storages].sort((a, b) => storageRank(a) - storageRank(b)),
-    colors: [...colors.values()].sort((a, b) =>
-      a.label.localeCompare(b.label, "ru"),
-    ),
-    priceRanges: PRICE_RANGES,
-  };
-}
-
 export type ProductFilterState = {
   model?: string | null;
   storage?: string | null;
   color?: string | null;
   price?: string | null;
+  availability?: AvailabilityFilter | null;
 };
+
+export type ProductFilterKey = keyof ProductFilterState;
+
+export type CatalogFacets = {
+  models: FacetOption[];
+  storages: FacetOption[];
+  colors: FacetOption[];
+  priceRanges: FacetOption[];
+  availability: FacetOption[];
+};
+
+const FILTER_KEYS: ProductFilterKey[] = [
+  "model",
+  "storage",
+  "price",
+  "color",
+  "availability",
+];
+
+const naturalCollator = new Intl.Collator("ru", {
+  numeric: true,
+  sensitivity: "base",
+});
+
+function storageRank(value: string): number {
+  const amount = Number(value.replace(/\D/g, ""));
+  return value.includes("TB") ? amount * 1024 : amount;
+}
+
+export function getProductAvailability(
+  product: PublicProduct,
+): AvailabilityFilter {
+  return product.availability_status === "on_order"
+    ? "on_order"
+    : "available";
+}
+
+function countOptions(
+  products: PublicProduct[],
+  getOption: (product: PublicProduct) => { id: string; label: string } | null,
+): FacetOption[] {
+  const options = new Map<string, FacetOption>();
+  for (const product of products) {
+    const option = getOption(product);
+    if (!option) continue;
+    const existing = options.get(option.id);
+    if (existing) existing.count += 1;
+    else options.set(option.id, { ...option, count: 1 });
+  }
+  return [...options.values()];
+}
+
+function productsForFacet(
+  products: PublicProduct[],
+  filters: ProductFilterState,
+  facet: ProductFilterKey,
+): PublicProduct[] {
+  return products.filter((product) =>
+    productMatchesFilters(product, filters, facet),
+  );
+}
+
+/** Build each facet after applying every active filter except itself. */
+export function buildCatalogFacets(
+  products: PublicProduct[],
+  filters: ProductFilterState = {},
+): CatalogFacets {
+  const modelProducts = productsForFacet(products, filters, "model");
+  const storageProducts = productsForFacet(products, filters, "storage");
+  const colorProducts = productsForFacet(products, filters, "color");
+  const priceProducts = productsForFacet(products, filters, "price");
+  const availabilityProducts = productsForFacet(
+    products,
+    filters,
+    "availability",
+  );
+
+  const models = countOptions(modelProducts, (product) => {
+    const model = extractModel(product);
+    return model ? { id: model, label: model } : null;
+  }).sort((a, b) => naturalCollator.compare(a.label, b.label));
+  if (filters.model && !models.some((option) => option.id === filters.model)) {
+    models.push({ id: filters.model, label: filters.model, count: 0 });
+  }
+
+  const storages = countOptions(storageProducts, (product) => {
+    const storage = extractStorage(product);
+    return storage ? { id: storage, label: storage } : null;
+  }).sort((a, b) => storageRank(a.id) - storageRank(b.id));
+  if (
+    filters.storage &&
+    !storages.some((option) => option.id === filters.storage)
+  ) {
+    storages.push({
+      id: filters.storage,
+      label: filters.storage,
+      count: 0,
+    });
+  }
+
+  const colors = countOptions(colorProducts, (product) => {
+    const color = extractColor(product);
+    return color
+      ? { id: color.id, label: `${color.emoji} ${color.label}` }
+      : null;
+  }).sort((a, b) => naturalCollator.compare(a.label, b.label));
+  if (filters.color && !colors.some((option) => option.id === filters.color)) {
+    const rule = COLOR_RULES.find((item) => item.id === filters.color);
+    colors.push({
+      id: filters.color,
+      label: rule ? `${rule.emoji} ${rule.label}` : filters.color,
+      count: 0,
+    });
+  }
+
+  const priceRanges = PRICE_RANGES.map((range) => ({
+    id: range.id,
+    label: range.label,
+    count: priceProducts.filter((product) => {
+      const price = parsePriceValue(product.price);
+      if (price == null || price < range.min) return false;
+      return !Number.isFinite(range.max) || price <= range.max;
+    }).length,
+  })).filter((option) => option.count > 0);
+  if (
+    filters.price &&
+    !priceRanges.some((option) => option.id === filters.price)
+  ) {
+    const range = PRICE_RANGES.find((item) => item.id === filters.price);
+    if (range) {
+      priceRanges.push({ id: range.id, label: range.label, count: 0 });
+    }
+  }
+
+  const availability = [
+    {
+      id: "available",
+      label: "В наличии",
+      count: availabilityProducts.filter(
+        (product) => getProductAvailability(product) === "available",
+      ).length,
+    },
+    {
+      id: "on_order",
+      label: "Под заказ",
+      count: availabilityProducts.filter(
+        (product) => getProductAvailability(product) === "on_order",
+      ).length,
+    },
+  ].filter((option) => option.count > 0);
+  if (
+    filters.availability &&
+    !availability.some((option) => option.id === filters.availability)
+  ) {
+    availability.push({
+      id: filters.availability,
+      label:
+        filters.availability === "available" ? "В наличии" : "Под заказ",
+      count: 0,
+    });
+  }
+
+  return { models, storages, colors, priceRanges, availability };
+}
 
 export function productMatchesFilters(
   product: PublicProduct,
   filters: ProductFilterState,
+  ignoredFilter?: ProductFilterKey,
 ): boolean {
-  if (filters.model) {
+  if (ignoredFilter !== "model" && filters.model) {
     const model = extractModel(product);
     if (model !== filters.model) return false;
   }
 
-  if (filters.storage) {
+  if (ignoredFilter !== "storage" && filters.storage) {
     const storage = extractStorage(product);
     if (storage !== filters.storage) return false;
   }
 
-  if (filters.color) {
+  if (ignoredFilter !== "color" && filters.color) {
     const color = extractColor(product);
     if (!color || color.id !== filters.color) return false;
   }
 
-  if (filters.price) {
+  if (ignoredFilter !== "price" && filters.price) {
     const range = PRICE_RANGES.find((item) => item.id === filters.price);
     const value = parsePriceValue(product.price);
     if (!range || value == null) return false;
     if (value < range.min) return false;
     if (Number.isFinite(range.max) ? value > range.max : false) return false;
+  }
+
+  if (
+    ignoredFilter !== "availability" &&
+    filters.availability &&
+    getProductAvailability(product) !== filters.availability
+  ) {
+    return false;
   }
 
   return true;
@@ -263,6 +409,55 @@ export function filterProductsByFacets(
 
 export function hasActiveFacets(filters: ProductFilterState): boolean {
   return Boolean(
-    filters.model || filters.storage || filters.color || filters.price,
+    filters.model ||
+      filters.storage ||
+      filters.color ||
+      filters.price ||
+      filters.availability,
   );
+}
+
+export function emptyProductFilters(): ProductFilterState {
+  return {
+    model: null,
+    storage: null,
+    color: null,
+    price: null,
+    availability: null,
+  };
+}
+
+/**
+ * Keep the changed facet and retain other selections only while at least one
+ * product still matches. This prevents hidden, impossible combinations.
+ */
+export function reconcileProductFilters(
+  products: PublicProduct[],
+  filters: ProductFilterState,
+  changedFilter?: ProductFilterKey,
+  allowAvailability = true,
+): ProductFilterState {
+  const next = emptyProductFilters();
+  const orderedKeys = changedFilter
+    ? [changedFilter, ...FILTER_KEYS.filter((key) => key !== changedFilter)]
+    : FILTER_KEYS;
+
+  for (const key of orderedKeys) {
+    if (key === "availability" && !allowAvailability) continue;
+    const value = filters[key];
+    if (!value) continue;
+    const candidate = { ...next, [key]: value };
+    if (products.some((product) => productMatchesFilters(product, candidate))) {
+      next[key] = value as never;
+    }
+  }
+
+  return next;
+}
+
+export function productFiltersEqual(
+  a: ProductFilterState,
+  b: ProductFilterState,
+): boolean {
+  return FILTER_KEYS.every((key) => (a[key] ?? null) === (b[key] ?? null));
 }
