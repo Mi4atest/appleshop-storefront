@@ -3,8 +3,11 @@ import type { PublicProduct } from "@/lib/api";
 /** Items within this window of the newest arrival form one intake wave. */
 export const FRESH_ARRIVAL_WINDOW_MS = 24 * 60 * 60 * 1000;
 
-/** Cap so a bulk catalog import does not mark the whole grid as fresh. */
-export const FRESH_ARRIVAL_LIMIT = 12;
+/**
+ * Hide the shelf/badges when the newest remaining item is older than this.
+ * Prevents an older wave from resurfacing after the latest wave sells out.
+ */
+export const MAX_FRESH_AGE_MS = 3 * 24 * 60 * 60 * 1000;
 
 type DatedProduct = {
   product: PublicProduct;
@@ -24,11 +27,11 @@ function toDated(products: PublicProduct[]): DatedProduct[] {
 }
 
 /**
- * Fresh used arrivals = the latest intake wave (newest first, capped).
+ * Fresh used arrivals = the latest intake wave (entire wave, newest first).
  *
  * Wave = dated used items within 24h of the newest `created_at`.
- * The wave stays until the next intake: a product more than 24h after the
- * previous newest. Until then the shelf/badge remain even if several days pass.
+ * If that newest item is older than {@link MAX_FRESH_AGE_MS}, nothing is fresh
+ * (no shelf, no badges) — older waves do not get promoted.
  * Individually, anything still younger than 24h also counts (min visibility).
  */
 export function selectFreshArrivals(
@@ -39,6 +42,7 @@ export function selectFreshArrivals(
   if (dated.length === 0) return [];
 
   const latestTime = dated[0].time;
+  if (now - latestTime > MAX_FRESH_AGE_MS) return [];
 
   const fresh = dated.filter((entry) => {
     const inLatestWave = latestTime - entry.time <= FRESH_ARRIVAL_WINDOW_MS;
@@ -46,7 +50,7 @@ export function selectFreshArrivals(
     return inLatestWave || withinMinWindow;
   });
 
-  return fresh.slice(0, FRESH_ARRIVAL_LIMIT).map((entry) => entry.product);
+  return fresh.map((entry) => entry.product);
 }
 
 export function buildFreshArrivalIdSet(
