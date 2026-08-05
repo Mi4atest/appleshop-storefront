@@ -12,9 +12,12 @@ import {
   type ReactNode,
 } from "react";
 import {
+  addCartItem,
   CART_STORAGE_KEY,
   getCartCount,
   normalizeCartItems,
+  removeCartItem,
+  setCartItemQuantity,
   type CartItem,
   type CartProductInput,
 } from "@/lib/cart";
@@ -57,6 +60,12 @@ function readStoredItems(): CartItem[] {
   }
 }
 
+/** Always prefer disk before mutating so other tabs' writes are not overwritten. */
+function readLatestItems(): CartItem[] {
+  memoryItems = readStoredItems();
+  return memoryItems;
+}
+
 function getClientItems(): CartItem[] {
   if (memoryItems === null) {
     memoryItems = readStoredItems();
@@ -85,6 +94,10 @@ function subscribe(listener: () => void) {
   };
 }
 
+function notifyItemsChanged() {
+  listeners.forEach((listener) => listener());
+}
+
 export function CartProvider({ children }: { children: ReactNode }) {
   const items = useSyncExternalStore(subscribe, getClientItems, getServerItems);
   const [isOpen, setIsOpen] = useState(false);
@@ -106,28 +119,24 @@ export function CartProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const addItem = useCallback((product: CartProductInput, quantity = 1) => {
-    const nextQty = Math.max(1, Math.min(99, Math.floor(quantity)));
-    const current = getClientItems();
-    const existing = current.find((item) => item.productId === product.productId);
-    let quantityInCart = nextQty;
+  // Keep in-memory cart aligned when another tab writes localStorage.
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key !== CART_STORAGE_KEY && event.key !== null) return;
+      memoryItems = readStoredItems();
+      notifyItemsChanged();
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
-    if (existing) {
-      quantityInCart = Math.min(99, existing.quantity + nextQty);
-      persistItems(
-        current.map((item) =>
-          item.productId === product.productId
-            ? {
-                ...item,
-                ...product,
-                quantity: quantityInCart,
-              }
-            : item,
-        ),
-      );
-    } else {
-      persistItems([...current, { ...product, quantity: nextQty }]);
-    }
+  const addItem = useCallback((product: CartProductInput, quantity = 1) => {
+    const { items: nextItems, quantityInCart } = addCartItem(
+      readLatestItems(),
+      product,
+      quantity,
+    );
+    persistItems(nextItems);
 
     noticeId.current += 1;
     setAddedNotice({
@@ -147,25 +156,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const removeItem = useCallback((productId: number) => {
-    persistItems(getClientItems().filter((item) => item.productId !== productId));
+    persistItems(removeCartItem(readLatestItems(), productId));
   }, []);
 
   const setQuantity = useCallback((productId: number, quantity: number) => {
-    const next = Math.floor(quantity);
-    if (next < 1) {
-      persistItems(getClientItems().filter((item) => item.productId !== productId));
-      return;
-    }
-    persistItems(
-      getClientItems().map((item) =>
-        item.productId === productId
-          ? { ...item, quantity: Math.min(99, next) }
-          : item,
-      ),
-    );
+    persistItems(setCartItemQuantity(readLatestItems(), productId, quantity));
   }, []);
 
-  const clearCart = useCallback(() => persistItems([]), []);
+  const clearCart = useCallback(() => {
+    // Still re-read so a concurrent clear/add from another tab is observable.
+    readLatestItems();
+    persistItems([]);
+  }, []);
 
   const value = useMemo<CartContextValue>(
     () => ({

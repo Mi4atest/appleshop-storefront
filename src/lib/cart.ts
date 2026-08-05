@@ -89,3 +89,55 @@ export function normalizeCartItems(value: unknown): CartItem[] {
 
   return items;
 }
+
+function clampQuantity(quantity: number): number {
+  return Math.max(1, Math.min(99, Math.floor(quantity)));
+}
+
+/** Merge a product into cart items (pure; used after re-reading storage). */
+export function addCartItem(
+  items: CartItem[],
+  product: CartProductInput,
+  quantity = 1,
+): { items: CartItem[]; quantityInCart: number } {
+  const nextQty = clampQuantity(quantity);
+  const existing = items.find((item) => item.productId === product.productId);
+
+  if (existing) {
+    const quantityInCart = Math.min(99, existing.quantity + nextQty);
+    return {
+      items: items.map((item) =>
+        item.productId === product.productId
+          ? { ...item, ...product, quantity: quantityInCart }
+          : item,
+      ),
+      quantityInCart,
+    };
+  }
+
+  return {
+    items: [...items, { ...product, quantity: nextQty }],
+    quantityInCart: nextQty,
+  };
+}
+
+export function removeCartItem(
+  items: CartItem[],
+  productId: number,
+): CartItem[] {
+  return items.filter((item) => item.productId !== productId);
+}
+
+export function setCartItemQuantity(
+  items: CartItem[],
+  productId: number,
+  quantity: number,
+): CartItem[] {
+  const next = Math.floor(quantity);
+  if (next < 1) return removeCartItem(items, productId);
+  return items.map((item) =>
+    item.productId === productId
+      ? { ...item, quantity: Math.min(99, next) }
+      : item,
+  );
+}
