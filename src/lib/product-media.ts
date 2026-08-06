@@ -115,7 +115,6 @@ const MOBI43: Record<string, string> = {
   "ipad-11|pink": "/renders/mobi43/ipad10-pink-1.png",
   "ipad-11|silver": "/renders/mobi43/ipad10-silver.png",
   "ipad-11|white": "/renders/mobi43/ipad10-silver.png",
-  "ipad-11|yellow": "/renders/mobi43/ipad10-blue-1.png",
   "ipad-11|": "/renders/mobi43/ipad10-blue-1.png",
 
   "watch-11|black": "/renders/mobi43/watch-11-42-black.jpg",
@@ -187,7 +186,8 @@ function detectModel(name: string): ModelKey | null {
     return "airpods-4-anc";
   }
   if (name.includes("airpods 4")) return "airpods-4";
-  if (name.includes("airpods 3") || name.includes("airpods")) return "airpods-4";
+  // Unknown AirPods generations (e.g. AirPods 3) must not reuse AirPods 4 art.
+  if (name.includes("airpods")) return null;
 
   if (name.includes("iphone 17 pro max")) return "iphone-17-pro-max";
   if (name.includes("iphone 17 pro")) return "iphone-17-pro";
@@ -233,15 +233,16 @@ function detectModel(name: string): ModelKey | null {
   ) {
     return "watch-se2";
   }
-  if (name.includes("watch")) return "watch-11";
-
+  // Unknown Watch series (e.g. Series 9) must not reuse Series 11 art.
   return null;
 }
 
 function lookup(model: ModelKey, color: ColorKey | null): string | null {
   if (color) {
     const exact = MOBI43[`${model}|${color}`];
+    // Prefer a placeholder over a different color's render (e.g. yellow→blue).
     if (exact) return exact;
+    return null;
   }
   return MOBI43[`${model}|`] ?? null;
 }
@@ -249,10 +250,7 @@ function lookup(model: ModelKey, color: ColorKey | null): string | null {
 export function resolveProductRender(product: PublicProduct): string | null {
   const name = productName(product);
   const model = detectModel(name);
-  if (!model) {
-    if (name.includes("iphone")) return "/renders/mobi43/17-Black.png";
-    return null;
-  }
+  if (!model) return null;
   return lookup(model, detectColor(name));
 }
 
