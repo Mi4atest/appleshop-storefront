@@ -2,7 +2,13 @@
 
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useId, useMemo, useState } from "react";
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useState,
+  type FormEvent,
+} from "react";
 import { BrandMark } from "@/components/brand-mark";
 import {
   BagIcon,
@@ -21,6 +27,8 @@ const NAV_LINKS = [
   { href: "/#contact", label: "Контакты" },
 ];
 
+const SEARCH_PLACEHOLDER = "Найти iPhone, Watch…";
+
 const iconButtonClass =
   "inline-flex h-10 w-10 shrink-0 items-center justify-center text-black transition-opacity hover:opacity-60";
 
@@ -31,7 +39,9 @@ type HeaderProps = {
 export function Header({ searchProducts = [] }: HeaderProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [mobileDraft, setMobileDraft] = useState("");
   const drawerId = useId();
+  const mobileSearchId = useId();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -39,6 +49,10 @@ export function Header({ searchProducts = [] }: HeaderProps) {
   const { count, openCart, badgePulse } = useCart();
 
   const products = useMemo(() => searchProducts, [searchProducts]);
+
+  useEffect(() => {
+    setMobileDraft(urlQuery);
+  }, [urlQuery]);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -64,6 +78,7 @@ export function Header({ searchProducts = [] }: HeaderProps) {
   const submitSearch = (query: string) => {
     const trimmed = query.trim();
     setSearchOpen(false);
+    setMenuOpen(false);
 
     const params =
       pathname === "/"
@@ -84,6 +99,11 @@ export function Header({ searchProducts = [] }: HeaderProps) {
     }, 80);
   };
 
+  const handleMobileSearchSubmit = (event: FormEvent) => {
+    event.preventDefault();
+    submitSearch(mobileDraft);
+  };
+
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-neutral-200 bg-white">
@@ -92,26 +112,69 @@ export function Header({ searchProducts = [] }: HeaderProps) {
             Доставка и самовывоз в Кирове
           </p>
         </div>
-        <div className="flex h-12 items-center gap-2 px-2 md:h-14 md:gap-6 md:px-6 lg:px-8">
-          <div className="flex w-10 shrink-0 items-center justify-start md:hidden">
-            <button
-              type="button"
-              className={iconButtonClass}
-              aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
-              aria-expanded={menuOpen}
-              aria-controls={drawerId}
-              onClick={() => setMenuOpen((value) => !value)}
-            >
-              {menuOpen ? <CloseIcon /> : <MenuIcon />}
-            </button>
-          </div>
 
-          <div className="flex min-w-0 flex-1 items-center justify-center md:flex-none md:justify-start">
+        {/* Mobile: menu · search · cart */}
+        <div className="flex h-12 items-center gap-1.5 px-2 md:hidden">
+          <button
+            type="button"
+            className={iconButtonClass}
+            aria-label={menuOpen ? "Закрыть меню" : "Открыть меню"}
+            aria-expanded={menuOpen}
+            aria-controls={drawerId}
+            onClick={() => setMenuOpen((value) => !value)}
+          >
+            {menuOpen ? <CloseIcon /> : <MenuIcon />}
+          </button>
+
+          <form
+            onSubmit={handleMobileSearchSubmit}
+            className="flex min-w-0 flex-1 items-center gap-2 rounded-full bg-neutral-100 px-3 py-2"
+            role="search"
+          >
+            <SearchIcon className="h-4 w-4 shrink-0 text-neutral-500" />
+            <label htmlFor={mobileSearchId} className="sr-only">
+              Поиск по каталогу
+            </label>
+            <input
+              id={mobileSearchId}
+              type="search"
+              value={mobileDraft}
+              onChange={(event) => setMobileDraft(event.target.value)}
+              placeholder={SEARCH_PLACEHOLDER}
+              className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-neutral-400"
+              autoComplete="off"
+              autoCorrect="off"
+              spellCheck={false}
+              enterKeyHint="search"
+            />
+          </form>
+
+          <button
+            type="button"
+            className={`relative ${iconButtonClass}`}
+            aria-label={count > 0 ? `Корзина, товаров: ${count}` : "Корзина"}
+            onClick={openCart}
+          >
+            <BagIcon />
+            {count > 0 ? (
+              <span
+                key={badgePulse}
+                className="cart-badge-pulse absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center bg-black px-1 text-[9px] font-bold leading-none text-white"
+              >
+                {count > 99 ? "99+" : count}
+              </span>
+            ) : null}
+          </button>
+        </div>
+
+        {/* Desktop: brand · nav · icons */}
+        <div className="hidden h-14 items-center gap-6 px-6 md:flex lg:px-8">
+          <div className="flex min-w-0 shrink-0 items-center justify-start">
             <BrandMark showWordmark />
           </div>
 
           <nav
-            className="hidden min-w-0 flex-1 items-center justify-center gap-8 lg:gap-10 md:flex"
+            className="min-w-0 flex-1 items-center justify-center gap-8 lg:gap-10 md:flex"
             aria-label="Основная навигация"
           >
             {NAV_LINKS.map((link) => (
@@ -125,7 +188,7 @@ export function Header({ searchProducts = [] }: HeaderProps) {
             ))}
           </nav>
 
-          <div className="flex w-[5.25rem] shrink-0 items-center justify-end md:w-auto md:gap-0.5">
+          <div className="flex shrink-0 items-center justify-end gap-0.5">
             <button
               type="button"
               className={iconButtonClass}
@@ -136,7 +199,7 @@ export function Header({ searchProducts = [] }: HeaderProps) {
             </button>
             <button
               type="button"
-              className={`${iconButtonClass} hidden md:inline-flex`}
+              className={iconButtonClass}
               aria-label="Профиль"
             >
               <ProfileIcon />
@@ -189,16 +252,6 @@ export function Header({ searchProducts = [] }: HeaderProps) {
                     {link.label}
                   </Link>
                 ))}
-                <button
-                  type="button"
-                  className="text-left text-sm font-bold uppercase tracking-[0.22em]"
-                  onClick={() => {
-                    setMenuOpen(false);
-                    openSearch();
-                  }}
-                >
-                  Поиск
-                </button>
               </nav>
             </div>
           </div>

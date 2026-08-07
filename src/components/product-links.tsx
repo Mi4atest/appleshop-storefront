@@ -22,10 +22,16 @@ export function ProductLinks({ links, size = "sm" }: ProductLinksProps) {
   const buttonClass =
     size === "md"
       ? "inline-flex h-11 w-11 items-center justify-center rounded-xl transition-transform hover:scale-105"
-      : "inline-flex h-9 w-9 items-center justify-center rounded-lg transition-transform hover:scale-105";
+      : "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-transform hover:scale-105";
 
   return (
-    <ul className="mt-2 flex flex-wrap items-center justify-center gap-2">
+    <ul
+      className={
+        size === "md"
+          ? "mt-2 flex flex-wrap items-center justify-start gap-1"
+          : "mt-2 flex flex-nowrap items-center justify-start gap-0"
+      }
+    >
       {links.map((link) => {
         const src = ICON_SRC[link.key];
         return (

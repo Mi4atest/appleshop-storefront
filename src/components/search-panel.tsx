@@ -126,7 +126,7 @@ export function SearchPanel({
                 onClick={onClose}
                 className="flex items-baseline justify-between gap-3 border-b border-neutral-100 px-1 py-3"
               >
-                <span className="min-w-0 break-words text-sm font-bold uppercase tracking-[0.08em]">
+                <span className="min-w-0 break-words text-sm font-semibold leading-snug tracking-normal">
                   {getProductTitle(product)}
                 </span>
                 <span className="shrink-0 text-sm text-neutral-600">

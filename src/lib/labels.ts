@@ -37,5 +37,8 @@ export function getProductBadge(
   if (product.availability_status === "on_order") {
     return { label: "ПОД ЗАКАЗ", tone: "on_order" };
   }
-  return { label: "В НАЛИЧИИ", tone: "available" };
+  if (product.availability_status === "available") {
+    return { label: "В НАЛИЧИИ", tone: "available" };
+  }
+  return null;
 }

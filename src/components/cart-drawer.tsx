@@ -145,7 +145,7 @@ export function CartDrawer() {
                     <Link
                       href={`/products/${item.productId}`}
                       onClick={closeCart}
-                      className="mt-1 block text-xs font-bold uppercase leading-snug tracking-[0.08em] transition-opacity hover:opacity-60"
+                      className="mt-1 block text-sm font-semibold leading-snug tracking-normal transition-opacity hover:opacity-60"
                     >
                       {item.title}
                     </Link>

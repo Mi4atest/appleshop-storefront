@@ -102,12 +102,12 @@ export function ProductCard({
             </span>
           ) : null}
           <Link href={href} className="block outline-offset-4">
-            <h3 className="break-words text-[11px] font-bold uppercase leading-snug tracking-[0.1em] sm:text-sm">
+            <h3 className="break-words text-sm font-semibold leading-snug tracking-normal text-neutral-800">
               {title}
             </h3>
           </Link>
           {product.price ? (
-            <p className="mt-1.5 text-sm text-neutral-700 sm:text-base">
+            <p className="mt-1.5 text-base font-bold tracking-tight text-black md:text-lg">
               {product.price}
             </p>
           ) : null}
@@ -139,12 +139,15 @@ export function ProductCard({
         href={href}
         onAddToCart={handleAddToCart}
       />
-      <Link href={href} className="mt-3 block px-1 text-center outline-offset-4">
-        <p className="line-clamp-2 text-[11px] font-bold uppercase leading-snug tracking-[0.12em] md:text-xs">
+      <Link
+        href={href}
+        className="mt-3 block px-1 text-left outline-offset-4"
+      >
+        <p className="line-clamp-2 text-sm font-medium leading-snug tracking-normal text-neutral-700 md:font-semibold md:text-neutral-800">
           {title}
         </p>
         {product.price ? (
-          <p className="mt-1.5 text-xs font-normal tracking-wide text-neutral-800 md:text-sm">
+          <p className="mt-1.5 text-base font-bold tracking-tight text-black md:text-lg">
             {product.price}
           </p>
         ) : null}

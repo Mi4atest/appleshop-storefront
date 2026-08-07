@@ -3,6 +3,7 @@ import { Space_Grotesk } from "next/font/google";
 import { CartDrawer } from "@/components/cart-drawer";
 import { CartProvider } from "@/components/cart-provider";
 import { CartToast } from "@/components/cart-toast";
+import { FloatingCartButton } from "@/components/floating-cart-button";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -43,6 +44,7 @@ export default function RootLayout({
           {children}
           <CartDrawer />
           <CartToast />
+          <FloatingCartButton />
         </CartProvider>
       </body>
     </html>

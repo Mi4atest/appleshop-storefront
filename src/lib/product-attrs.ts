@@ -170,6 +170,48 @@ function cleanupModel(value: string): string {
     .trim();
 }
 
+/** Short chip label for mobile quick filters: "iPhone 13 Pro" → "13 Pro". */
+export function shortModelChipLabel(full: string): string {
+  const value = full.replace(/\s+/g, " ").trim();
+  const lower = value.toLowerCase();
+
+  if (lower.includes("airpods")) {
+    return value
+      .replace(/^AirPods\s*/i, "")
+      .replace(/\s+/g, " ")
+      .trim() || "AirPods";
+  }
+
+  if (lower.includes("watch")) {
+    let short = value
+      .replace(/^(?:Apple\s+)?Watch\s*/i, "")
+      .replace(/^Series\s*/i, "S")
+      .replace(/\s+/g, " ")
+      .trim();
+    // "SE 3 44mm" → "SE3 44", "11 42mm" → "S11 42"
+    short = short
+      .replace(/\bSE\s*(\d+)/i, "SE$1")
+      .replace(/^(\d+)\b/, "S$1")
+      .replace(/(\d+)\s*mm\b/i, "$1")
+      .trim();
+    return short || "Watch";
+  }
+
+  if (lower.includes("ipad")) {
+    return value
+      .replace(/^iPad\s*/i, "")
+      .replace(/\s*\([^)]*\)\s*/g, " ")
+      .replace(/\s+/g, " ")
+      .trim() || "iPad";
+  }
+
+  if (/^iPhone\s+/i.test(value)) {
+    return value.replace(/^iPhone\s+/i, "").trim() || value;
+  }
+
+  return value;
+}
+
 export function extractStorage(product: PublicProduct): string | null {
   const text = productText(product);
   const match = text.match(/(\d+)\s*(TB|Gb|GB|Tb)/i);
@@ -227,10 +269,10 @@ function storageRank(value: string): number {
 
 export function getProductAvailability(
   product: PublicProduct,
-): AvailabilityFilter {
-  return product.availability_status === "on_order"
-    ? "on_order"
-    : "available";
+): AvailabilityFilter | null {
+  if (product.availability_status === "on_order") return "on_order";
+  if (product.availability_status === "available") return "available";
+  return null;
 }
 
 function countOptions(

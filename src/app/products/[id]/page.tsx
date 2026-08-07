@@ -70,9 +70,7 @@ export default async function ProductPage({ params }: PageProps) {
     ...videos.map((src) => ({ type: "video" as const, src })),
   ];
 
-  const availability =
-    getAvailabilityLabel(product.availability_status) ||
-    (product.kind === "new" ? "В наличии" : null);
+  const availability = getAvailabilityLabel(product.availability_status);
 
   const searchProducts = [
     ...(usedResult.ok ? usedResult.data.items : []),
@@ -110,12 +108,12 @@ export default async function ProductPage({ params }: PageProps) {
                   : ""}
               </p>
 
-              <h1 className="mt-3 break-words text-xl font-bold uppercase leading-snug tracking-[0.04em] sm:text-2xl md:text-3xl md:leading-tight md:tracking-[0.08em]">
+              <h1 className="mt-3 break-words text-xl font-semibold leading-snug tracking-normal sm:text-2xl md:text-3xl md:leading-tight">
                 {title}
               </h1>
 
               {product.price ? (
-                <p className="mt-4 text-xl tracking-wide md:text-2xl">
+                <p className="mt-4 text-xl font-bold tracking-tight text-black md:text-2xl">
                   {product.price}
                 </p>
               ) : null}

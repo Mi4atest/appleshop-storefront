@@ -4,6 +4,7 @@ import { useState } from "react";
 import { FilterDropdown } from "@/components/filter-dropdown";
 import { FilterIcon, GridIcon, ListIcon } from "@/components/icons";
 import { MobileFilterSheet } from "@/components/mobile-filter-sheet";
+import { ModelQuickFilters } from "@/components/model-quick-filters";
 import type { PublicProduct } from "@/lib/api";
 import type { CatalogCategory } from "@/lib/catalog";
 import type { CatalogSort, CatalogView } from "@/lib/catalog-state";
@@ -187,14 +188,15 @@ export function Hero({
             </div>
           </div>
 
-          <div className="mt-3 hidden flex-wrap items-center justify-end gap-x-5 gap-y-2 border-t border-neutral-100 pt-3 md:flex">
-            <FilterDropdown
-              label="Модель"
-              value={filters.model ?? null}
-              options={facets.models}
-              onChange={(value) => onFilterChange("model", value)}
-              align="left"
+          <div className="mt-3 border-t border-neutral-100 pt-3 md:mt-4">
+            <ModelQuickFilters
+              models={facets.models}
+              selected={filters.model ?? null}
+              onSelect={(modelId) => onFilterChange("model", modelId)}
             />
+          </div>
+
+          <div className="mt-3 hidden flex-wrap items-center justify-end gap-x-5 gap-y-2 border-t border-neutral-100 pt-3 md:flex">
             <FilterDropdown
               label="Память"
               value={filters.storage ?? null}

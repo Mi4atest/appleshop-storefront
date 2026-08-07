@@ -287,3 +287,43 @@ export function getDisplayMedia(product: PublicProduct): {
 export function getProductColorHint(product: PublicProduct): string | null {
   return detectColor(productName(product));
 }
+
+/** Eye-catching default thumbs for mobile model quick-filter chips. */
+const CHIP_THUMBS: Partial<Record<ModelKey, string>> = {
+  "iphone-17-pro-max": "/renders/iphone-17-pro-orange.jpg",
+  "iphone-17-pro": "/renders/iphone-17-pro-orange.jpg",
+  "iphone-air": "/renders/iphone-air-black.jpg",
+  "iphone-17e": "/renders/iphone-17e-black.jpg",
+  "iphone-17": "/renders/iphone-17-black.jpg",
+  "iphone-16e": "/renders/iphone-16e-black.jpg",
+  "iphone-16": "/renders/iphone-16-black.png",
+  "iphone-15-plus": "/renders/iphone-15-black.png",
+  "iphone-15": "/renders/iphone-15-black.png",
+  "iphone-14": "/renders/iphone-14-pro.png",
+  "iphone-13-pro": "/renders/iphone-13-pro.jpg",
+  "ipad-air": "/renders/ipad-air-blue.jpg",
+  "ipad-11": "/renders/ipad-11-blue.jpg",
+  "watch-11": "/renders/watch-s11-black.jpg",
+  "watch-se3": "/renders/watch-se3-midnight.jpg",
+  "watch-se2": "/renders/watch-se.png",
+  "airpods-pro-3": "/renders/airpods.jpg",
+  "airpods-pro-2": "/renders/airpods.jpg",
+  "airpods-4-anc": "/renders/airpods.jpg",
+  "airpods-4": "/renders/airpods.jpg",
+  "airpods-3": "/renders/airpods.jpg",
+};
+
+/** Thumbnail for a facet model label (e.g. "iPhone 13 Pro"). */
+export function chipThumbForModel(label: string): string {
+  const lower = label.toLowerCase();
+  const model = detectModel(lower);
+  if (model && CHIP_THUMBS[model]) return CHIP_THUMBS[model]!;
+
+  if (lower.includes("watch")) return "/renders/watch-category.jpg";
+  if (lower.includes("ipad")) return "/renders/ipad-11.jpg";
+  if (lower.includes("airpods")) return "/renders/airpods.jpg";
+  if (lower.includes("iphone") || /^\d/.test(lower)) {
+    return "/renders/iphone-category.jpg";
+  }
+  return "/renders/iphone-category.jpg";
+}
