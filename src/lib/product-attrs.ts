@@ -141,8 +141,9 @@ export function extractModel(product: PublicProduct): string | null {
   }
 
   if (lower.includes("watch")) {
+    // Match Series before SE — otherwise "Series" is eaten as "SE" + "ries".
     const match = text.match(
-      /(?:Apple\s+)?Watch(?:\s+(?:SE|Ultra))?(?:\s*(?:\d+|Series\s*\d+))?(?:\s*\d+mm)?/i,
+      /(?:Apple\s+)?Watch(?:\s+Series\s*\d+|\s+SE[\s-]?\d*|\s+Ultra(?:\s*\d+)?|\s+\d+)?(?:\s*,?\s*\d+\s*mm)?/i,
     );
     return cleanupModel(match?.[0] ?? "Apple Watch");
   }
