@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   useEffect,
   useId,
@@ -43,7 +43,6 @@ export function Header({ searchProducts = [] }: HeaderProps) {
   const drawerId = useId();
   const mobileSearchId = useId();
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const urlQuery = searchParams.get("q") ?? "";
   const { count, openCart, badgePulse } = useCart();
@@ -80,12 +79,11 @@ export function Header({ searchProducts = [] }: HeaderProps) {
     setSearchOpen(false);
     setMenuOpen(false);
 
-    const params =
-      pathname === "/"
-        ? new URLSearchParams(searchParams.toString())
-        : new URLSearchParams();
+    // Global search previews the full catalog. Do not keep the current
+    // category/facet params — otherwise Enter can land on an empty grid
+    // while the overlay still showed matches (e.g. q=iPad with category=used).
+    const params = new URLSearchParams();
     if (trimmed) params.set("q", trimmed);
-    else params.delete("q");
 
     const queryString = params.toString();
     const href = queryString ? `/?${queryString}#catalog` : "/#catalog";
