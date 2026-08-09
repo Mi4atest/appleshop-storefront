@@ -14,10 +14,24 @@ type DatedProduct = {
   time: number;
 };
 
+/**
+ * Warehouse `created_at` values are UTC wall times without a `Z`/`±offset`
+ * suffix. `Date.parse` treats that form as local time, so SSR (UTC) and
+ * browsers in MSK/Kirov disagree by hours and drop the 3-day fresh wave early.
+ */
+export function parseCreatedAtMs(createdAt: string): number {
+  const trimmed = createdAt.trim();
+  if (!trimmed) return Number.NaN;
+  const hasZone = /(?:[zZ]|[+-]\d{2}:?\d{2})$/.test(trimmed);
+  return Date.parse(hasZone ? trimmed : `${trimmed}Z`);
+}
+
 function toDated(products: PublicProduct[]): DatedProduct[] {
   return products
     .map((product) => {
-      const time = product.created_at ? Date.parse(product.created_at) : Number.NaN;
+      const time = product.created_at
+        ? parseCreatedAtMs(product.created_at)
+        : Number.NaN;
       return { product, time };
     })
     .filter((entry) => Number.isFinite(entry.time))

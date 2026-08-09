@@ -113,7 +113,9 @@ export async function fetchAllProductsByKind(
       limit: PAGE_LIMIT,
       skip: items.length,
     });
-    if (!page.ok) return page;
+    // A later page failure must not discard pages already fetched — with
+    // totals above PAGE_LIMIT (e.g. new catalog), that wiped the whole grid.
+    if (!page.ok) break;
     if (page.data.items.length === 0) break;
     items.push(...page.data.items);
   }
