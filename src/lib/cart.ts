@@ -13,6 +13,17 @@ export type CartProductInput = Omit<CartItem, "quantity">;
 
 export const CART_STORAGE_KEY = "appleshop-cart-v1";
 
+/** Used listings are unique physical units; new SKUs may stack. */
+export function maxCartQuantity(kind: ProductKind): number {
+  return kind === "used" ? 1 : 99;
+}
+
+export function clampCartQuantity(kind: ProductKind, quantity: number): number {
+  const max = maxCartQuantity(kind);
+  if (!Number.isFinite(quantity)) return 1;
+  return Math.max(1, Math.min(max, Math.floor(quantity)));
+}
+
 export function parsePriceAmount(price: string | null | undefined): number | null {
   if (!price) return null;
   const digits = price.replace(/[^\d]/g, "");
@@ -83,7 +94,7 @@ export function normalizeCartItems(value: unknown): CartItem[] {
       price: typeof record.price === "string" ? record.price : null,
       image: typeof record.image === "string" ? record.image : null,
       kind,
-      quantity: Math.min(99, Math.floor(quantity)),
+      quantity: clampCartQuantity(kind, quantity),
     });
   }
 

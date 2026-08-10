@@ -9,6 +9,7 @@ import {
   buildOrderMessage,
   formatPriceAmount,
   getCartTotal,
+  maxCartQuantity,
 } from "@/lib/cart";
 import { getKindLabel } from "@/lib/labels";
 
@@ -159,8 +160,9 @@ export function CartDrawer() {
                       <div className="inline-flex items-center border border-neutral-200">
                         <button
                           type="button"
-                          className="h-8 w-8 text-sm transition-opacity hover:opacity-55"
+                          className="h-8 w-8 text-sm transition-opacity hover:opacity-55 disabled:opacity-30"
                           aria-label="Уменьшить количество"
+                          disabled={item.quantity <= 1}
                           onClick={() =>
                             setQuantity(item.productId, item.quantity - 1)
                           }
@@ -172,8 +174,11 @@ export function CartDrawer() {
                         </span>
                         <button
                           type="button"
-                          className="h-8 w-8 text-sm transition-opacity hover:opacity-55"
+                          className="h-8 w-8 text-sm transition-opacity hover:opacity-55 disabled:opacity-30"
                           aria-label="Увеличить количество"
+                          disabled={
+                            item.quantity >= maxCartQuantity(item.kind)
+                          }
                           onClick={() =>
                             setQuantity(item.productId, item.quantity + 1)
                           }
