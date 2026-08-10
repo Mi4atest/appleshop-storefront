@@ -13,6 +13,7 @@ import {
 } from "react";
 import {
   CART_STORAGE_KEY,
+  clampCartQuantity,
   getCartCount,
   normalizeCartItems,
   type CartItem,
@@ -107,13 +108,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const addItem = useCallback((product: CartProductInput, quantity = 1) => {
-    const nextQty = Math.max(1, Math.min(99, Math.floor(quantity)));
+    const nextQty = clampCartQuantity(product.kind, quantity);
     const current = getClientItems();
     const existing = current.find((item) => item.productId === product.productId);
     let quantityInCart = nextQty;
 
     if (existing) {
-      quantityInCart = Math.min(99, existing.quantity + nextQty);
+      quantityInCart = clampCartQuantity(
+        product.kind,
+        existing.quantity + nextQty,
+      );
       persistItems(
         current.map((item) =>
           item.productId === product.productId
@@ -159,7 +163,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     persistItems(
       getClientItems().map((item) =>
         item.productId === productId
-          ? { ...item, quantity: Math.min(99, next) }
+          ? { ...item, quantity: clampCartQuantity(item.kind, next) }
           : item,
       ),
     );

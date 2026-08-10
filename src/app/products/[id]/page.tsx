@@ -54,6 +54,7 @@ export default async function ProductPage({ params }: PageProps) {
 
   const product = result.data;
   const title = getProductTitle(product);
+  const isSellable = product.status === "active";
   const links = getProductLinks(product);
   const shopLinks =
     product.kind === "new" ? [] : getShopChannelLinks(links);
@@ -119,13 +120,20 @@ export default async function ProductPage({ params }: PageProps) {
               ) : null}
 
               <div className="mt-6">
-                <AddToCartButton
-                  productId={product.id}
-                  title={title}
-                  price={product.price}
-                  image={images[0] ?? null}
-                  kind={product.kind}
-                />
+                {isSellable ? (
+                  <AddToCartButton
+                    productId={product.id}
+                    title={title}
+                    price={product.price}
+                    image={images[0] ?? null}
+                    kind={product.kind}
+                  />
+                ) : (
+                  <p className="border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm leading-relaxed text-neutral-700">
+                    Этот товар уже недоступен для заказа — он снят с продажи или
+                    продан.
+                  </p>
+                )}
               </div>
 
               {usingRender ? (
