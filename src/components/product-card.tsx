@@ -71,10 +71,18 @@ export function ProductCard({
     const imageIsRender = image?.startsWith("/renders/") ?? false;
 
     return (
-      <article
-        className="grid grid-cols-[5.5rem_minmax(0,1fr)] gap-3 border-b border-neutral-200 py-3 sm:grid-cols-[7rem_minmax(0,1fr)_auto] sm:items-center sm:gap-5"
-        data-product-card
-      >
+      <>
+        <div className="md:hidden">
+          <ProductCard
+            product={product}
+            isFreshArrival={isFreshArrival}
+            view="grid"
+          />
+        </div>
+        <article
+          className="hidden grid-cols-[5.5rem_minmax(0,1fr)] gap-3 border-b border-neutral-200 py-3 sm:grid-cols-[7rem_minmax(0,1fr)_auto] sm:items-center sm:gap-5 md:grid"
+          data-product-card
+        >
         <Link
           href={href}
           className="relative row-span-2 aspect-square w-full overflow-hidden bg-neutral-50 sm:row-span-1"
@@ -125,6 +133,7 @@ export function ProductCard({
           {justAdded ? "Добавлено" : "В корзину"}
         </button>
       </article>
+      </>
     );
   }
 

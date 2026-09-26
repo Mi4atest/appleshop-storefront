@@ -12,7 +12,7 @@ export function FloatingCartButton() {
 
   return (
     <div
-      className={`fixed right-3 z-[65] transition-[bottom] duration-300 ease-out md:right-5 ${
+      className={`fixed right-3 z-[65] hidden transition-[bottom] duration-300 ease-out md:right-5 md:block ${
         toastVisible ? "bottom-[5.75rem] md:bottom-28" : "bottom-4 md:bottom-6"
       }`}
     >

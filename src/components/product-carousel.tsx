@@ -92,7 +92,11 @@ export function ProductCarousel({ slides, alt }: ProductCarouselProps) {
             alt={`${alt} — ${safeIndex + 1}/${total}`}
             fill
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="object-contain"
+            className={
+              current.src.startsWith("/renders/")
+                ? "object-contain"
+                : "object-cover"
+            }
             preload={safeIndex === 0}
           />
         ) : (

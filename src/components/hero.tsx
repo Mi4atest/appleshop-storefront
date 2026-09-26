@@ -1,11 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { FilterDropdown } from "@/components/filter-dropdown";
-import { FilterIcon, GridIcon, ListIcon } from "@/components/icons";
-import { MobileFilterSheet } from "@/components/mobile-filter-sheet";
+import { GridIcon, ListIcon } from "@/components/icons";
 import { ModelQuickFilters } from "@/components/model-quick-filters";
-import type { PublicProduct } from "@/lib/api";
 import type { CatalogCategory } from "@/lib/catalog";
 import type { CatalogSort, CatalogView } from "@/lib/catalog-state";
 import type {
@@ -23,7 +20,6 @@ const FILTER_PILLS: { id: CatalogCategory; label: string }[] = [
 type HeroProps = {
   category: CatalogCategory;
   onCategoryChange: (category: CatalogCategory) => void;
-  filterProducts: PublicProduct[];
   facets: CatalogFacets;
   filters: ProductFilterState;
   query: string;
@@ -31,7 +27,6 @@ type HeroProps = {
   sort: CatalogSort;
   view: CatalogView;
   onFilterChange: (key: ProductFilterKey, value: string | null) => void;
-  onApplyFilters: (filters: ProductFilterState) => void;
   onResetFilters: () => void;
   onClearQuery: () => void;
   onSortChange: (sort: CatalogSort) => void;
@@ -41,7 +36,6 @@ type HeroProps = {
 export function Hero({
   category,
   onCategoryChange,
-  filterProducts,
   facets,
   filters,
   query,
@@ -49,14 +43,11 @@ export function Hero({
   sort,
   view,
   onFilterChange,
-  onApplyFilters,
   onResetFilters,
   onClearQuery,
   onSortChange,
   onViewChange,
 }: HeroProps) {
-  const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
-
   const hasFilters = Boolean(
     filters.model ||
       filters.storage ||
@@ -64,13 +55,6 @@ export function Hero({
       filters.color ||
       filters.availability,
   );
-  const activeFilterCount = [
-    filters.model,
-    filters.storage,
-    filters.price,
-    filters.color,
-    filters.availability,
-  ].filter(Boolean).length;
 
   const sortOptions = [
     {
@@ -149,14 +133,6 @@ export function Hero({
                 }
                 align="left"
               />
-              <button
-                type="button"
-                onClick={() => setMobileFiltersOpen(true)}
-                className="inline-flex items-center gap-1.5 px-2 py-2 text-[11px] font-bold uppercase tracking-[0.12em] md:hidden"
-              >
-                <FilterIcon />
-                Фильтры{activeFilterCount ? ` · ${activeFilterCount}` : ""}
-              </button>
               <div
                 className="inline-flex border border-neutral-200"
                 role="group"
@@ -263,20 +239,6 @@ export function Hero({
           ) : null}
         </div>
       </div>
-
-      {mobileFiltersOpen ? (
-        <MobileFilterSheet
-          open
-          category={category}
-          products={filterProducts}
-          filters={filters}
-          onClose={() => setMobileFiltersOpen(false)}
-          onApply={(nextFilters) => {
-            onApplyFilters(nextFilters);
-            setMobileFiltersOpen(false);
-          }}
-        />
-      ) : null}
     </section>
   );
 }

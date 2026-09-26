@@ -3,6 +3,8 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo } from "react";
 import { Hero } from "@/components/hero";
+import { MobileCatalogBar } from "@/components/mobile-catalog-bar";
+import { MobileHomeIntro } from "@/components/mobile-home-intro";
 import { NewItemsGrid } from "@/components/new-items-grid";
 import { UsedItemsGrid } from "@/components/used-items-grid";
 import type { PublicProduct } from "@/lib/api";
@@ -14,6 +16,7 @@ import {
   type CatalogUiState,
   type CatalogView,
 } from "@/lib/catalog-state";
+import { selectFreshArrivals } from "@/lib/fresh-arrivals";
 import {
   buildCatalogFacets,
   emptyProductFilters,
@@ -178,27 +181,58 @@ export function Catalog({
     (showUsed ? filteredUsed.length : 0) + (showNew ? filteredNew.length : 0);
   const hasNarrowing = hasQuery || facetActive;
   const noResults = hasNarrowing && visibleCount === 0;
+  const freshProducts = useMemo(
+    () => selectFreshArrivals(usedProducts),
+    [usedProducts],
+  );
+  const showFreshShelf = showUsed && !hasNarrowing && !usedError;
 
   return (
     <div className="min-w-0 overflow-x-hidden">
-      <Hero
+      <div className="hidden md:block">
+        <Hero
+          category={category}
+          onCategoryChange={updateCategory}
+          facets={facets}
+          filters={filters}
+          query={query}
+          visibleCount={visibleCount}
+          sort={sort}
+          view={view}
+          onFilterChange={updateFilter}
+          onResetFilters={resetFilters}
+          onClearQuery={clearQuery}
+          onSortChange={updateSort}
+          onViewChange={updateView}
+        />
+      </div>
+      <MobileHomeIntro
         category={category}
         onCategoryChange={updateCategory}
+        hasUsed={usedProducts.length > 0 && !usedError}
+        hasNew={newProducts.length > 0 && !newError}
+        facets={facets}
+        selectedModel={filters.model ?? null}
+        onModelSelect={(modelId) => updateFilter("model", modelId)}
+        freshProducts={freshProducts}
+        showFresh={showFreshShelf}
+      />
+      <MobileCatalogBar
+        category={category}
         filterProducts={queryScopedProducts}
         facets={facets}
         filters={filters}
         query={query}
-        visibleCount={visibleCount}
         sort={sort}
-        view={view}
         onFilterChange={updateFilter}
         onApplyFilters={applyFilters}
-        onResetFilters={resetFilters}
         onClearQuery={clearQuery}
         onSortChange={updateSort}
-        onViewChange={updateView}
       />
-      <div id="catalog" className="scroll-mt-20 pt-5 md:pt-6">
+      <div
+        id="catalog"
+        className="scroll-mt-[calc(var(--header-h,4.75rem)+3.25rem)] pt-5 md:scroll-mt-20 md:pt-6"
+      >
         {noResults ? (
           <div className="mx-auto flex min-h-72 max-w-xl flex-col items-center justify-center px-4 pb-16 text-center">
             <h2 className="text-base font-bold uppercase tracking-[0.18em]">

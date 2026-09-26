@@ -11,7 +11,7 @@ export function CartToast() {
 
   return (
     <div
-      className="pointer-events-none fixed inset-x-0 bottom-0 z-[70] flex justify-center p-3 md:bottom-6 md:p-4"
+      className="pointer-events-none fixed inset-x-0 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-[70] flex justify-center p-3 md:bottom-6 md:p-4"
       role="status"
       aria-live="polite"
     >

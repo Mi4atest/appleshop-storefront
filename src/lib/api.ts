@@ -129,7 +129,9 @@ export async function fetchAllProductsByKind(
 }
 
 export function getProductTitle(product: PublicProduct): string {
-  return product.display_label?.trim() || product.name;
+  // display_label is the short Telegram caption (emoji, little text).
+  // The storefront shows the full marketing name.
+  return product.name.trim() || product.display_label?.trim() || "";
 }
 
 export type FetchProductResult =
