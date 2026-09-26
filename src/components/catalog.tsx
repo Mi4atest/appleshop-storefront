@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Hero } from "@/components/hero";
 import { MobileCatalogBar } from "@/components/mobile-catalog-bar";
 import { MobileHomeIntro } from "@/components/mobile-home-intro";
@@ -11,6 +11,7 @@ import type { PublicProduct } from "@/lib/api";
 import type { CatalogCategory } from "@/lib/catalog";
 import {
   catalogStateHref,
+  catalogUiEqual,
   readCatalogState,
   type CatalogSort,
   type CatalogUiState,
@@ -54,7 +55,15 @@ export function Catalog({
     () => readCatalogState(new URLSearchParams(paramsKey)),
     [paramsKey],
   );
-  const { category, query, sort, view } = parsedUi;
+  const [draft, setDraft] = useState<CatalogUiState | null>(null);
+
+  useEffect(() => {
+    if (!draft) return;
+    if (catalogUiEqual(parsedUi, draft)) setDraft(null);
+  }, [draft, parsedUi]);
+
+  const rawUi = draft ?? parsedUi;
+  const { category, query, sort, view } = rawUi;
 
   const allProducts = useMemo(
     () => [...usedProducts, ...newProducts],
@@ -76,21 +85,22 @@ export function Catalog({
     () =>
       reconcileProductFilters(
         categoryProducts,
-        parsedUi.filters,
+        rawUi.filters,
         undefined,
         category === "new",
       ),
-    [categoryProducts, parsedUi.filters, category],
+    [categoryProducts, rawUi.filters, category],
   );
 
   const ui = useMemo<CatalogUiState>(
-    () => ({ ...parsedUi, filters: sanitizedFilters }),
-    [parsedUi, sanitizedFilters],
+    () => ({ ...rawUi, filters: sanitizedFilters }),
+    [rawUi, sanitizedFilters],
   );
   const filters = ui.filters;
 
   const commit = useCallback(
     (next: CatalogUiState) => {
+      setDraft(next);
       router.replace(catalogStateHref(pathname, next), { scroll: false });
     },
     [pathname, router],

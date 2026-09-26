@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useRef, useState } from "react";
 import { ModelQuickFilters } from "@/components/model-quick-filters";
 import { ProductCard } from "@/components/product-card";
+import { TapButton } from "@/components/tap-button";
 import type { PublicProduct } from "@/lib/api";
 import type { CatalogCategory } from "@/lib/catalog";
 import type { CatalogFacets } from "@/lib/product-attrs";
@@ -33,12 +34,18 @@ type MobileHomeIntroProps = {
 };
 
 function scrollToId(id: string) {
-  window.setTimeout(() => {
-    document.getElementById(id)?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  }, 80);
+  const started = performance.now();
+  const tryScroll = () => {
+    const el = document.getElementById(id);
+    if (el) {
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+    if (performance.now() - started < 600) {
+      window.requestAnimationFrame(tryScroll);
+    }
+  };
+  window.requestAnimationFrame(tryScroll);
 }
 
 export function MobileHomeIntro({
@@ -113,10 +120,9 @@ export function MobileHomeIntro({
           {tiles.map((tile) => {
             const active = category === tile.id;
             return (
-              <button
+              <TapButton
                 key={tile.id}
-                type="button"
-                onClick={() => {
+                onActivate={() => {
                   if (active) {
                     onCategoryChange("all");
                     return;
@@ -141,7 +147,7 @@ export function MobileHomeIntro({
                 <span className="block px-3 pb-3 text-sm font-semibold">
                   {tile.label}
                 </span>
-              </button>
+              </TapButton>
             );
           })}
         </div>
@@ -222,14 +228,13 @@ function PromoCarousel({ slides }: { slides: Slide[] }) {
       <div
         ref={scrollerRef}
         onScroll={syncIndex}
-        className="flex snap-x snap-mandatory gap-3 overflow-x-auto px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        className="flex snap-x snap-proximity gap-3 overflow-x-auto px-3 [scroll-behavior:auto] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
         {slides.map((slide) => (
-          <button
+          <TapButton
             key={slide.id}
-            type="button"
             data-slide
-            onClick={slide.onSelect}
+            onActivate={slide.onSelect}
             className="relative h-52 w-[calc(100%-1.5rem)] shrink-0 snap-center overflow-hidden rounded-[20px] bg-neutral-100 text-left"
           >
             <Image
@@ -239,7 +244,7 @@ function PromoCarousel({ slides }: { slides: Slide[] }) {
               sizes="100vw"
               className="object-contain p-6 pb-16"
             />
-            <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-4 pb-4 pt-10 text-white">
+            <span className="keep-tone absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-4 pb-4 pt-10 text-white">
               <span className="block text-lg font-semibold leading-tight">
                 {slide.title}
               </span>
@@ -249,7 +254,7 @@ function PromoCarousel({ slides }: { slides: Slide[] }) {
                 </span>
               ) : null}
             </span>
-          </button>
+          </TapButton>
         ))}
       </div>
       {slides.length > 1 ? (

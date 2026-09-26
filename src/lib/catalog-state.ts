@@ -80,3 +80,20 @@ export function catalogStateHref(
   const query = catalogStateToParams(state).toString();
   return query ? `${pathname}?${query}` : pathname;
 }
+
+export function catalogUiEqual(
+  a: CatalogUiState,
+  b: CatalogUiState,
+): boolean {
+  return (
+    a.category === b.category &&
+    a.query === b.query &&
+    a.sort === b.sort &&
+    a.view === b.view &&
+    a.filters.model === b.filters.model &&
+    a.filters.storage === b.filters.storage &&
+    a.filters.color === b.filters.color &&
+    a.filters.price === b.filters.price &&
+    a.filters.availability === b.filters.availability
+  );
+}
