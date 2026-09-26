@@ -73,7 +73,7 @@ export function CartDrawer() {
     >
       <button
         type="button"
-        className="absolute inset-0 bg-black/30"
+        className="keep-tone absolute inset-0 bg-black/30"
         aria-label="Закрыть корзину"
         onClick={closeCart}
       />

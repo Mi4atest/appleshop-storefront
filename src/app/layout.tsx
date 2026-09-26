@@ -5,6 +5,8 @@ import { CartProvider } from "@/components/cart-provider";
 import { CartToast } from "@/components/cart-toast";
 import { FloatingCartButton } from "@/components/floating-cart-button";
 import { MobileTabBar } from "@/components/mobile-tab-bar";
+import { ThemeSync } from "@/components/theme-toggle";
+import { themeBootScript } from "@/lib/theme";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
@@ -38,9 +40,12 @@ export default function RootLayout({
   return (
     <html
       lang="ru"
+      suppressHydrationWarning
       className={`${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="flex min-h-full min-w-0 flex-col overflow-x-hidden font-sans">
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+        <ThemeSync />
         <CartProvider>
           <div className="flex min-h-full min-w-0 flex-1 flex-col">
             {children}

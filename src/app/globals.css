@@ -101,3 +101,156 @@ button {
 .cart-badge-pulse {
   animation: cart-badge-pulse 0.45s ease-out;
 }
+
+html.dark {
+  color-scheme: dark;
+  --background: #0e0e0e;
+  --foreground: #f5f5f5;
+  --muted: #a3a3a3;
+  --line: #2e2e2e;
+  --surface: #1a1a1a;
+}
+
+html.dark body {
+  background: #0e0e0e;
+  color: #f5f5f5;
+}
+
+html.dark ::selection {
+  background: #f5f5f5;
+  color: #0e0e0e;
+}
+
+html.dark :focus-visible {
+  outline-color: #f5f5f5;
+}
+
+html.dark .bg-white:not(.keep-tone) {
+  background-color: #141414;
+}
+html.dark .bg-white\/90:not(.keep-tone) {
+  background-color: rgb(20 20 20 / 0.9);
+}
+html.dark .bg-white\/95:not(.keep-tone) {
+  background-color: rgb(20 20 20 / 0.95);
+}
+html.dark .bg-white\/70:not(.keep-tone) {
+  background-color: rgb(20 20 20 / 0.7);
+}
+html.dark .hover\:bg-white:not(.keep-tone):hover {
+  background-color: #1c1c1c;
+}
+
+html.dark .bg-black:not(.keep-tone) {
+  background-color: #f5f5f5;
+}
+html.dark .text-black:not(.keep-tone) {
+  color: #f5f5f5;
+}
+html.dark .text-white:not(.keep-tone) {
+  color: #111111;
+}
+html.dark .text-white\/70:not(.keep-tone) {
+  color: rgb(17 17 17 / 0.7);
+}
+html.dark .text-white\/80:not(.keep-tone) {
+  color: rgb(17 17 17 / 0.8);
+}
+html.dark .border-black:not(.keep-tone) {
+  border-color: #f5f5f5;
+}
+html.dark .ring-black:not(.keep-tone) {
+  --tw-ring-color: #f5f5f5;
+}
+html.dark .hover\:text-black:not(.keep-tone):hover {
+  color: #f5f5f5;
+}
+
+html.dark .bg-neutral-50:not(.keep-tone) {
+  background-color: #171717;
+}
+html.dark .bg-neutral-100:not(.keep-tone),
+html.dark .active\:bg-neutral-100:not(.keep-tone):active {
+  background-color: #222222;
+}
+html.dark .bg-neutral-200:not(.keep-tone) {
+  background-color: #2a2a2a;
+}
+html.dark .border-neutral-100:not(.keep-tone) {
+  border-color: #242424;
+}
+html.dark .border-neutral-200:not(.keep-tone),
+html.dark .border-neutral-200\/80:not(.keep-tone) {
+  border-color: #333333;
+}
+html.dark .border-neutral-300:not(.keep-tone) {
+  border-color: #3d3d3d;
+}
+html.dark .hover\:border-neutral-400:not(.keep-tone):hover {
+  border-color: #737373;
+}
+
+html.dark .text-neutral-400:not(.keep-tone),
+html.dark .placeholder\:text-neutral-400:not(.keep-tone)::placeholder {
+  color: #a3a3a3;
+}
+html.dark .text-neutral-500:not(.keep-tone) {
+  color: #b0b0b0;
+}
+html.dark .text-neutral-600:not(.keep-tone) {
+  color: #d4d4d4;
+}
+html.dark .text-neutral-700:not(.keep-tone),
+html.dark .text-neutral-800:not(.keep-tone) {
+  color: #ececec;
+}
+
+html.dark .keep-tone,
+html.dark .keep-tone.text-white,
+html.dark .keep-tone .text-white,
+html.dark .keep-tone .text-white\/80 {
+  color: #fff;
+}
+html.dark .keep-tone.bg-white,
+html.dark .keep-tone.bg-white\/70,
+html.dark .keep-tone .bg-white,
+html.dark .keep-tone .bg-white\/70 {
+  background-color: #fff;
+}
+html.dark .keep-tone.bg-white\/70,
+html.dark .keep-tone.bg-white\/70:hover {
+  background-color: rgb(255 255 255 / 0.7);
+}
+html.dark .keep-tone.text-black,
+html.dark .keep-tone .text-black {
+  color: #111;
+}
+html.dark .keep-tone.bg-black,
+html.dark .keep-tone.bg-black\/30,
+html.dark .keep-tone.bg-black\/35 {
+  background-color: #000;
+}
+html.dark .keep-tone.bg-black\/30 {
+  background-color: rgb(0 0 0 / 0.3);
+}
+html.dark .keep-tone.bg-black\/35 {
+  background-color: rgb(0 0 0 / 0.35);
+}
+html.dark .keep-tone.bg-neutral-900 {
+  background-color: #171717;
+}
+
+html.dark footer {
+  background-color: #050505;
+  color: #fafafa;
+  border-top-color: #2a2a2a;
+}
+html.dark footer .text-neutral-300 {
+  color: #d4d4d4;
+}
+html.dark footer .text-neutral-400 {
+  color: #a3a3a3;
+}
+html.dark footer .text-neutral-500 {
+  color: #8a8a8a;
+}

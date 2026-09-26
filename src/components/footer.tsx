@@ -11,7 +11,7 @@ export function Footer() {
   return (
     <footer
       id="contact"
-      className="mt-auto bg-[#0a0a0a] px-6 py-14 text-white md:px-10 md:py-16"
+      className="mt-auto border-t border-transparent bg-[#0a0a0a] px-6 py-14 text-white md:px-10 md:py-16 dark:border-neutral-800 dark:bg-[#050505]"
     >
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-10">
         <nav className="flex flex-col items-center gap-4" aria-label="Подвал">

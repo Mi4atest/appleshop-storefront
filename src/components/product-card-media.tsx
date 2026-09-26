@@ -358,8 +358,8 @@ export function ProductCardMedia({
               key={i}
               className={`h-1 rounded-full transition-all duration-150 ${
                 i === activeIndex
-                  ? "w-3 bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.25)]"
-                  : "w-1 bg-white/70 shadow-[0_0_0_1px_rgba(0,0,0,0.2)]"
+                  ? "keep-tone w-3 bg-white shadow-[0_0_0_1px_rgba(0,0,0,0.25)]"
+                  : "keep-tone w-1 bg-white/70 shadow-[0_0_0_1px_rgba(0,0,0,0.2)]"
               }`}
             />
           ))}

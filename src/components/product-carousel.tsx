@@ -106,7 +106,7 @@ export function ProductCarousel({ slides, alt }: ProductCarouselProps) {
             controls
             playsInline
             preload="metadata"
-            className="absolute inset-0 h-full w-full bg-black object-contain"
+            className="keep-tone absolute inset-0 h-full w-full bg-black object-contain"
           />
         )}
 
@@ -116,7 +116,7 @@ export function ProductCarousel({ slides, alt }: ProductCarouselProps) {
               type="button"
               aria-label="Предыдущее фото"
               onClick={() => go(safeIndex - 1)}
-              className="absolute left-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-black backdrop-blur-[2px] transition-colors hover:bg-white md:left-3 md:h-10 md:w-10"
+              className="keep-tone absolute left-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-black backdrop-blur-[2px] transition-colors hover:bg-white md:left-3 md:h-10 md:w-10"
             >
               <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
             </button>
@@ -124,7 +124,7 @@ export function ProductCarousel({ slides, alt }: ProductCarouselProps) {
               type="button"
               aria-label="Следующее фото"
               onClick={() => go(safeIndex + 1)}
-              className="absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-black backdrop-blur-[2px] transition-colors hover:bg-white md:right-3 md:h-10 md:w-10"
+              className="keep-tone absolute right-2 top-1/2 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/70 text-black backdrop-blur-[2px] transition-colors hover:bg-white md:right-3 md:h-10 md:w-10"
             >
               <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
             </button>
@@ -153,7 +153,7 @@ export function ProductCarousel({ slides, alt }: ProductCarouselProps) {
                   className="object-contain p-1"
                 />
               ) : (
-                <span className="flex h-full w-full items-center justify-center bg-neutral-900 text-[10px] font-bold uppercase tracking-wider text-white">
+                <span className="keep-tone flex h-full w-full items-center justify-center bg-neutral-900 text-[10px] font-bold uppercase tracking-wider text-white">
                   Видео
                 </span>
               )}

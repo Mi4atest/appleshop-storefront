@@ -108,7 +108,7 @@ export function MobileFilterSheet({
     <div className="fixed inset-0 z-[70] md:hidden" role="dialog" aria-modal="true">
       <button
         type="button"
-        className="absolute inset-0 bg-black/35"
+        className="keep-tone absolute inset-0 bg-black/35"
         aria-label="Закрыть фильтры"
         onClick={onClose}
       />

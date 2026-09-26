@@ -7,6 +7,7 @@ import { BrandMark } from "@/components/brand-mark";
 import { BagIcon, ProfileIcon, SearchIcon } from "@/components/icons";
 import { useCart } from "@/components/cart-provider";
 import { SearchPanel } from "@/components/search-panel";
+import { ThemeToggle } from "@/components/theme-toggle";
 import type { PublicProduct } from "@/lib/api";
 
 const NAV_LINKS = [
@@ -126,6 +127,7 @@ export function Header({ searchProducts = [] }: HeaderProps) {
           </nav>
 
           <div className="flex shrink-0 items-center justify-end gap-0.5">
+            <ThemeToggle />
             <button
               type="button"
               className={iconButtonClass}
