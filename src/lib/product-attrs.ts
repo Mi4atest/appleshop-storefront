@@ -221,6 +221,27 @@ export function extractStorage(product: PublicProduct): string | null {
   return `${amount}${normalizedUnit}`;
 }
 
+/** Human-readable storage for catalog cards, e.g. "256 ГБ". */
+export function formatStorageLabel(storage: string): string {
+  const match = storage.match(/^(\d+)\s*(TB|GB)$/i);
+  if (!match) return storage;
+  const unit = match[2].toUpperCase() === "TB" ? "ТБ" : "ГБ";
+  return `${match[1]} ${unit}`;
+}
+
+/**
+ * Compact meta line for catalog cards: storage and/or color, no emoji.
+ * Example: "256 ГБ · Синий"
+ */
+export function getProductCardMeta(product: PublicProduct): string | null {
+  const parts: string[] = [];
+  const storage = extractStorage(product);
+  if (storage) parts.push(formatStorageLabel(storage));
+  const color = extractColor(product);
+  if (color) parts.push(color.label);
+  return parts.length > 0 ? parts.join(" · ") : null;
+}
+
 export function extractColor(product: PublicProduct): ColorOption | null {
   const text = productText(product).toLowerCase();
   for (const rule of COLOR_RULES) {

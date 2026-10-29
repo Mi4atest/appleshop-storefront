@@ -7,6 +7,8 @@ export type CartItem = {
   image: string | null;
   kind: ProductKind;
   quantity: number;
+  /** Avito listing URL when known — used for checkout deep-link. */
+  avitoUrl?: string | null;
 };
 
 export type CartProductInput = Omit<CartItem, "quantity">;
@@ -84,6 +86,10 @@ export function normalizeCartItems(value: unknown): CartItem[] {
       image: typeof record.image === "string" ? record.image : null,
       kind,
       quantity: Math.min(99, Math.floor(quantity)),
+      avitoUrl:
+        typeof record.avitoUrl === "string" && record.avitoUrl.trim()
+          ? record.avitoUrl.trim()
+          : null,
     });
   }
 

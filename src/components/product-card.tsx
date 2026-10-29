@@ -6,12 +6,12 @@ import { useEffect, useRef, useState } from "react";
 import { useCart } from "@/components/cart-provider";
 import { ProductCardMedia } from "@/components/product-card-media";
 import { ProductPlaceholder } from "@/components/product-placeholder";
-import { ProductLinks } from "@/components/product-links";
 import {
   getProductBadge,
   type ProductBadgeTone,
 } from "@/lib/labels";
 import { getProductTitle, type PublicProduct } from "@/lib/api";
+import { getProductCardMeta } from "@/lib/product-attrs";
 import { getDisplayMedia } from "@/lib/product-media";
 import { getProductLinks } from "@/lib/product-links";
 
@@ -27,7 +27,7 @@ export function ProductCard({
   view = "grid",
 }: ProductCardProps) {
   const title = getProductTitle(product);
-  const links = getProductLinks(product);
+  const meta = getProductCardMeta(product);
   const badge = getProductBadge(product, { isFreshArrival });
   const { images, videos } = getDisplayMedia(product);
   const href = `/products/${product.id}`;
@@ -42,12 +42,16 @@ export function ProductCard({
   }, []);
 
   const handleAddToCart = () => {
+    const avitoUrl =
+      getProductLinks(product).find((link) => link.key === "avito")?.href ??
+      null;
     addItem({
       productId: product.id,
       title,
       price: product.price,
       image: images[0] ?? null,
       kind: product.kind,
+      avitoUrl,
     });
   };
 
@@ -83,56 +87,59 @@ export function ProductCard({
           className="hidden grid-cols-[5.5rem_minmax(0,1fr)] gap-3 border-b border-neutral-200 py-3 sm:grid-cols-[7rem_minmax(0,1fr)_auto] sm:items-center sm:gap-5 md:grid"
           data-product-card
         >
-        <Link
-          href={href}
-          className="relative row-span-2 aspect-square w-full overflow-hidden bg-neutral-50 sm:row-span-1"
-          aria-label={title}
-        >
-          {image ? (
-            <Image
-              src={image}
-              alt={title}
-              fill
-              sizes="112px"
-              className={imageIsRender ? "object-contain" : "object-cover"}
-            />
-          ) : (
-            <ProductPlaceholder title={title} />
-          )}
-        </Link>
-
-        <div className="min-w-0 self-center">
-          {badge ? (
-            <span
-              className={`mb-2 inline-flex px-2 py-1 text-[8px] font-bold uppercase tracking-[0.12em] ${badgeToneClass[badge.tone]}`}
-            >
-              {badge.label}
-            </span>
-          ) : null}
-          <Link href={href} className="block outline-offset-4">
-            <h3 className="break-words text-sm font-semibold leading-snug tracking-normal text-neutral-800">
-              {title}
-            </h3>
+          <Link
+            href={href}
+            className="relative row-span-2 aspect-square w-full overflow-hidden bg-neutral-50 sm:row-span-1"
+            aria-label={title}
+          >
+            {image ? (
+              <Image
+                src={image}
+                alt={title}
+                fill
+                sizes="112px"
+                className={imageIsRender ? "object-contain" : "object-cover"}
+              />
+            ) : (
+              <ProductPlaceholder title={title} />
+            )}
           </Link>
-          {product.price ? (
-            <p className="mt-1.5 text-base font-bold tracking-tight text-black md:text-lg">
-              {product.price}
-            </p>
-          ) : null}
-        </div>
 
-        <button
-          type="button"
-          onClick={handleListAdd}
-          className={`col-start-2 self-start px-3 py-2.5 text-[9px] font-bold uppercase tracking-[0.14em] transition-colors sm:col-start-3 sm:row-start-1 sm:self-center sm:px-5 sm:py-3 ${
-            justAdded
-              ? "border border-black bg-white text-black"
-              : "bg-black text-white"
-          }`}
-        >
-          {justAdded ? "Добавлено" : "В корзину"}
-        </button>
-      </article>
+          <div className="min-w-0 self-center">
+            {badge ? (
+              <span
+                className={`mb-2 inline-flex px-2 py-1 text-[8px] font-bold uppercase tracking-[0.12em] ${badgeToneClass[badge.tone]}`}
+              >
+                {badge.label}
+              </span>
+            ) : null}
+            <Link href={href} className="block outline-offset-4">
+              <h3 className="break-words text-sm font-semibold leading-snug tracking-normal text-neutral-800">
+                {title}
+              </h3>
+            </Link>
+            {meta ? (
+              <p className="mt-1 text-xs text-neutral-500">{meta}</p>
+            ) : null}
+            {product.price ? (
+              <p className="mt-1.5 text-base font-bold tracking-tight text-black md:text-lg">
+                {product.price}
+              </p>
+            ) : null}
+          </div>
+
+          <button
+            type="button"
+            onClick={handleListAdd}
+            className={`col-start-2 self-start px-3 py-2.5 text-[9px] font-bold uppercase tracking-[0.14em] transition-colors sm:col-start-3 sm:row-start-1 sm:self-center sm:px-5 sm:py-3 ${
+              justAdded
+                ? "border border-black bg-white text-black"
+                : "bg-black text-white"
+            }`}
+          >
+            {justAdded ? "Добавлено" : "В корзину"}
+          </button>
+        </article>
       </>
     );
   }
@@ -155,15 +162,15 @@ export function ProductCard({
         <p className="line-clamp-2 text-sm font-medium leading-snug tracking-normal text-neutral-700 md:font-semibold md:text-neutral-800">
           {title}
         </p>
+        {meta ? (
+          <p className="mt-1 text-xs leading-snug text-neutral-500">{meta}</p>
+        ) : null}
         {product.price ? (
           <p className="mt-1.5 text-base font-bold tracking-tight text-black md:text-lg">
             {product.price}
           </p>
         ) : null}
       </Link>
-      <div className="px-1">
-        <ProductLinks links={links} />
-      </div>
     </article>
   );
 }

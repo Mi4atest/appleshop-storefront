@@ -2,17 +2,17 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useId, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { useCart } from "@/components/cart-provider";
 import { CloseIcon } from "@/components/icons";
 import {
-  buildOrderMessage,
-  formatPriceAmount,
-  getCartTotal,
-} from "@/lib/cart";
+  channelHint,
+  listCheckoutChannels,
+  openCheckoutChannel,
+  type CheckoutChannelId,
+} from "@/lib/checkout-channels";
+import { formatPriceAmount, getCartTotal } from "@/lib/cart";
 import { getKindLabel } from "@/lib/labels";
-
-const TELEGRAM_ORDER_URL = "https://t.me/AppleShop43";
 
 export function CartDrawer() {
   const {
@@ -24,7 +24,12 @@ export function CartDrawer() {
     clearCart,
   } = useCart();
   const titleId = useId();
-  const [copied, setCopied] = useState(false);
+  const [copiedChannel, setCopiedChannel] = useState<CheckoutChannelId | null>(
+    null,
+  );
+  const [activeHint, setActiveHint] = useState<string | null>(null);
+
+  const channels = useMemo(() => listCheckoutChannels(items), [items]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -44,24 +49,20 @@ export function CartDrawer() {
   }, [isOpen, closeCart]);
 
   useEffect(() => {
-    if (!copied) return;
-    const timer = window.setTimeout(() => setCopied(false), 2000);
+    if (!copiedChannel) return;
+    const timer = window.setTimeout(() => setCopiedChannel(null), 2200);
     return () => window.clearTimeout(timer);
-  }, [copied]);
+  }, [copiedChannel]);
 
   if (!isOpen) return null;
 
   const total = getCartTotal(items);
 
-  const checkout = async () => {
-    const message = buildOrderMessage(items);
-    try {
-      await navigator.clipboard.writeText(message);
-      setCopied(true);
-    } catch {
-      /* ignore */
-    }
-    window.open(TELEGRAM_ORDER_URL, "_blank", "noopener,noreferrer");
+  const checkout = async (channelId: CheckoutChannelId) => {
+    const result = await openCheckoutChannel(channelId, items);
+    if (!result.ok) return;
+    setCopiedChannel(channelId);
+    setActiveHint(channelHint(channelId));
   };
 
   return (
@@ -206,16 +207,42 @@ export function CartDrawer() {
                 </div>
               ) : null}
 
-              <button
-                type="button"
-                onClick={() => void checkout()}
-                className="w-full bg-black px-4 py-3.5 text-[11px] font-bold uppercase tracking-[0.18em] text-white transition-opacity hover:opacity-80"
-              >
-                {copied ? "Заказ скопирован" : "Оформить в Telegram"}
-              </button>
-              <p className="mt-2 text-center text-[10px] leading-relaxed text-neutral-500">
-                Текст заказа копируется в буфер — вставьте его в чат менеджеру
+              <p className="mb-3 text-[11px] font-bold uppercase tracking-[0.18em]">
+                Написать менеджеру
               </p>
+
+              <div className="grid grid-cols-2 gap-2">
+                {channels.map((channel, index) => {
+                  const primary = index === 0;
+                  const active = copiedChannel === channel.id;
+                  return (
+                    <button
+                      key={channel.id}
+                      type="button"
+                      onClick={() => void checkout(channel.id)}
+                      className={`px-3 py-3 text-[10px] font-bold uppercase tracking-[0.14em] transition-colors ${
+                        active
+                          ? "border border-black bg-white text-black"
+                          : primary
+                            ? "bg-black text-white hover:opacity-80"
+                            : "border border-neutral-300 bg-white text-black hover:border-neutral-400"
+                      } ${channels.length % 2 === 1 && index === channels.length - 1 ? "col-span-2" : ""}`}
+                    >
+                      {active ? "Скопировано" : channel.label}
+                    </button>
+                  );
+                })}
+              </div>
+
+              <p className="mt-2 text-center text-[10px] leading-relaxed text-neutral-500">
+                Текст заказа копируется — вставьте его в чат
+              </p>
+              {activeHint ? (
+                <p className="mt-1 text-center text-[10px] leading-relaxed text-neutral-600">
+                  {activeHint}
+                </p>
+              ) : null}
+
               <button
                 type="button"
                 onClick={clearCart}

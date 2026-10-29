@@ -15,42 +15,61 @@ const ICON_SRC: Record<ProductLinkKey, string> = {
   avito: "/icons/social/avito.png",
 };
 
+/** Short visible pill labels — distinguish VK market vs wall post. */
+const PILL_LABEL: Record<ProductLinkKey, string> = {
+  telegram: "Telegram",
+  vk: "VK товар",
+  vk_post: "VK пост",
+  max: "MAX",
+  instagram: "Instagram",
+  avito: "Авито",
+};
+
 export function ProductLinks({ links, size = "sm" }: ProductLinksProps) {
   if (links.length === 0) return null;
 
-  const px = size === "md" ? 36 : 28;
-  const buttonClass =
-    size === "md"
-      ? "inline-flex h-11 w-11 items-center justify-center rounded-xl transition-transform hover:scale-105"
-      : "inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-md transition-transform hover:scale-105";
+  const md = size === "md";
+  const iconPx = md ? 22 : 18;
 
   return (
     <ul
       className={
-        size === "md"
-          ? "mt-2 flex flex-wrap items-center justify-start gap-1"
-          : "mt-2 flex flex-nowrap items-center justify-start gap-0"
+        md
+          ? "mt-2 flex flex-wrap items-center gap-2"
+          : "mt-2 flex flex-wrap items-center gap-1.5"
       }
     >
       {links.map((link) => {
         const src = ICON_SRC[link.key];
+        const pillLabel = PILL_LABEL[link.key];
         return (
           <li key={`${link.key}:${link.href}`}>
             <a
               href={link.href}
               target="_blank"
               rel="noopener noreferrer"
-              className={buttonClass}
+              className={
+                md
+                  ? "inline-flex h-11 items-center gap-2 rounded-full border border-neutral-200 bg-neutral-50 pl-2.5 pr-3.5 text-sm font-medium text-neutral-800 transition-colors hover:border-neutral-400 hover:bg-neutral-100"
+                  : "inline-flex h-9 items-center gap-1.5 rounded-full border border-neutral-200 bg-neutral-50 pl-2 pr-2.5 text-xs font-medium text-neutral-800 transition-colors hover:border-neutral-400 hover:bg-neutral-100"
+              }
               aria-label={link.label}
               title={link.label}
             >
-              <Image
-                src={src}
-                alt={link.label}
-                width={px}
-                height={px}
-                className="h-full w-full object-contain"
-              />
+              <span className="keep-tone relative inline-flex shrink-0 items-center justify-center">
+                <Image
+                  src={src}
+                  alt=""
+                  width={iconPx}
+                  height={iconPx}
+                  className={
+                    md
+                      ? "h-[22px] w-[22px] object-contain"
+                      : "h-[18px] w-[18px] object-contain"
+                  }
+                />
+              </span>
+              <span>{pillLabel}</span>
             </a>
           </li>
         );

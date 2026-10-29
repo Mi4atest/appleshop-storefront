@@ -64,8 +64,10 @@ function getClientItems(): CartItem[] {
   return memoryItems;
 }
 
+const EMPTY_CART: CartItem[] = [];
+
 function getServerItems(): CartItem[] {
-  return [];
+  return EMPTY_CART;
 }
 
 function persistItems(items: CartItem[]) {

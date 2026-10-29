@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { DesktopHomeHero } from "@/components/desktop-home-hero";
 import { Hero } from "@/components/hero";
 import { MobileCatalogBar } from "@/components/mobile-catalog-bar";
 import { MobileHomeIntro } from "@/components/mobile-home-intro";
@@ -199,6 +200,11 @@ export function Catalog({
 
   return (
     <div className="min-w-0 overflow-x-hidden">
+      <DesktopHomeHero
+        onCategoryChange={updateCategory}
+        hasUsed={usedProducts.length > 0 && !usedError}
+        hasNew={newProducts.length > 0 && !newError}
+      />
       <div className="hidden md:block">
         <Hero
           category={category}

@@ -259,8 +259,6 @@ export function ProductCardMedia({
   };
 
   const showCta = hovered || justAdded;
-  const primaryIsRender = images[0]?.startsWith("/renders/") ?? false;
-  const frameClass = primaryIsRender ? "aspect-square" : "aspect-[3/4]";
   const visibleIndexes = galleryReady
     ? images.map((_, i) => i)
     : Array.from(new Set([0, activeIndex]));
@@ -268,7 +266,7 @@ export function ProductCardMedia({
   return (
     <div
       ref={rootRef}
-      className={`relative w-full overflow-hidden bg-neutral-50 ${frameClass}`}
+      className="relative aspect-square w-full overflow-hidden bg-neutral-50"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
       onMouseMove={handleMouseMove}

@@ -10,6 +10,7 @@ type AddToCartButtonProps = {
   price: string | null;
   image: string | null;
   kind: ProductKind;
+  avitoUrl?: string | null;
 };
 
 export function AddToCartButton({
@@ -18,18 +19,22 @@ export function AddToCartButton({
   price,
   image,
   kind,
+  avitoUrl = null,
 }: AddToCartButtonProps) {
   const { addItem, openCart } = useCart();
   const [added, setAdded] = useState(false);
 
   const handleClick = () => {
-    addItem({ productId, title, price, image, kind });
+    addItem({ productId, title, price, image, kind, avitoUrl });
     setAdded(true);
     window.setTimeout(() => setAdded(false), 2200);
   };
 
   return (
-    <div className="flex flex-col gap-2 sm:flex-row">
+    <div
+      id="product-cart-cta"
+      className="flex flex-col gap-2 sm:flex-row"
+    >
       <button
         type="button"
         onClick={handleClick}
